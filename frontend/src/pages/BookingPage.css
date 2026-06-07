@@ -1,0 +1,59 @@
+.booking-page {
+  min-height: 100vh;
+  background: #f5f7fa;
+}
+
+.booking-card {
+  border: none;
+  border-radius: 25px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.08);
+}
+
+.booking-title {
+  color: #0b3c5d;
+  font-weight: 700;
+}
+
+.booking-input {
+  height: 55px;
+  border-radius: 12px;
+}
+
+.summary-card {
+  background: linear-gradient(
+    135deg,
+    #0b3c5d,
+    #328cc1
+  );
+
+  color: white;
+
+  border-radius: 25px;
+
+  padding: 25px;
+
+  height: 100%;
+}
+
+.summary-card h4 {
+  margin-bottom: 20px;
+}
+
+.total-amount {
+  font-size: 36px;
+  font-weight: bold;
+  color: #d9b310;
+}
+
+.confirm-btn {
+  background: #198754;
+  border: none;
+  height: 55px;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.confirm-btn:hover {
+  background: #157347;
+}
