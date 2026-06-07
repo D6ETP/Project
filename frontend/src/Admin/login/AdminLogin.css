@@ -1,0 +1,229 @@
+/* ============================================
+   AdminLogin.css — Login Page Styles
+   ============================================ */
+
+.login-page {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── Left panel ── */
+.login-left {
+  flex: 1;
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 60px;
+  color: white;
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.login-brand-icon {
+  width: 52px;
+  height: 52px;
+  background: linear-gradient(135deg, #3b82f6, #0ea5e9);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: white;
+}
+
+.login-brand-name {
+  font-size: 28px;
+  font-weight: 800;
+  color: #f1f5f9;
+  margin: 0;
+}
+
+.login-tagline {
+  font-size: 16px;
+  color: #94a3b8;
+  line-height: 1.8;
+  margin: 0;
+}
+
+/* ── Right panel ── */
+.login-right {
+  width: 440px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  padding: 40px 32px;
+}
+
+.login-card {
+  width: 100%;
+  background: white;
+  border-radius: 16px;
+  padding: 36px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+}
+
+.login-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px;
+}
+
+.login-sub {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 24px;
+}
+
+/* Error message */
+.login-error {
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 18px;
+  border: 1px solid #fecaca;
+}
+
+/* Form fields */
+.login-field {
+  margin-bottom: 18px;
+}
+
+.login-field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.login-input-wrap {
+  display: flex;
+  align-items: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0 12px;
+  background: #f8fafc;
+  transition: border-color 0.2s;
+}
+
+.login-input-wrap:focus-within {
+  border-color: #3b82f6;
+  background: white;
+}
+
+.login-input-wrap i {
+  color: #94a3b8;
+  font-size: 15px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.login-input-wrap input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 11px 0;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  color: #1e293b;
+}
+
+.login-input-wrap input::placeholder {
+  color: #cbd5e1;
+}
+
+/* Submit button */
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #2563eb, #0ea5e9);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+  margin-top: 4px;
+}
+
+.login-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.login-btn:active {
+  transform: translateY(0);
+}
+
+/* Hint text */
+.login-hint {
+  font-size: 12px;
+  color: #94a3b8;
+  text-align: center;
+  margin: 16px 0 0;
+}
+
+/* Responsive — stack on small screens */
+@media (max-width: 768px) {
+  .login-page {
+    flex-direction: column;
+  }
+
+  .login-left {
+    padding: 32px 24px;
+    flex: none;
+  }
+
+  .login-right {
+    width: 100%;
+    padding: 24px 16px;
+  }
+}
+
+/* import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
+import AdminLogin from "./Admin/login/AdminLogin.jsx";
+import AdminDashboard from "./Admin/AdminDash/AdminDashboard.jsx";
+import BusManagement from "./Admin/BusManagement/BusManagement.jsx";
+import RouteManagement from "./Admin/Routes/RouteManagement.jsx";
+import ScheduleManagement from "./Admin/Schedules/ScheduleManagement.jsx";
+import PassengerManagement from "./Admin/Passengers/PassengerManagement";
+import Reports from "./Admin/Reports/Reports.jsx";
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Redirect root directly to dashboard */
+        /* <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/buses" element={<BusManagement />} />
+        <Route path="/admin/routes" element={<RouteManagement />} />
+        <Route path="/admin/schedules" element={<ScheduleManagement />} />
+        <Route path="/admin/passengers" element={<PassengerManagement />} />
+        <Route path="/admin/reports" element={<Reports />} />
+      </Routes>
+    </BrowserRouter> */
+  /* );
+}
+
+export default App; */ 
+
