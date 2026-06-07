@@ -1,0 +1,176 @@
+.profile-container {
+  min-height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 30px;
+
+  background:
+    linear-gradient(
+      rgba(0,0,0,0.45),
+      rgba(0,0,0,0.45)
+    ),
+    url("../assets/login-bg-iimg.jpg");
+
+  background-size: cover;
+  background-position: center;
+}
+
+/* Card */
+
+.profile-card {
+  width: 100%;
+  max-width: 550px;
+
+  padding: 35px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.15
+    );
+
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+
+  border-radius: 25px;
+
+  border: 1px solid
+    rgba(255,255,255,0.2);
+
+  box-shadow:
+    0 10px 35px
+    rgba(0,0,0,0.3);
+}
+
+/* Header */
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.profile-avatar {
+  font-size: 5rem;
+  color: #ffd43b;
+  margin-bottom: 10px;
+}
+
+.profile-header h2 {
+  color: white;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.profile-header p {
+  color: #e5e5e5;
+}
+
+/* Form */
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  color: white;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+
+  padding: 14px;
+
+  border: none;
+  border-radius: 12px;
+
+  outline: none;
+
+  color: white;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.18
+    );
+
+  box-sizing: border-box;
+
+  transition: 0.3s;
+}
+
+.form-group input:focus {
+  box-shadow:
+    0 0 0 3px
+    rgba(255,212,59,0.3);
+}
+
+.form-group input[type="date"] {
+  color: white;
+}
+
+/* Button */
+
+.profile-btn {
+  width: 100%;
+
+  padding: 15px;
+
+  border: none;
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffb703,
+      #fb8500
+    );
+
+  color: white;
+
+  font-size: 1rem;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+
+  transition: 0.3s;
+}
+
+.profile-btn:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 10px 20px
+    rgba(251,133,0,0.4);
+}
+
+/* Mobile */
+
+@media (max-width: 768px) {
+
+  .profile-card {
+    padding: 25px;
+  }
+
+  .profile-avatar {
+    font-size: 4rem;
+  }
+
+  .profile-header h2 {
+    font-size: 1.8rem;
+  }
+}
