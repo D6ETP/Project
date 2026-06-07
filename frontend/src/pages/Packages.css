@@ -1,0 +1,285 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:'Poppins',sans-serif;
+  overflow-x:hidden;
+}
+
+/* MAIN CONTAINER */
+
+.packages-container{
+  min-height:100vh;
+  padding:40px 20px;
+
+  background:
+    radial-gradient(circle at top left,
+      rgba(255,215,0,.08),
+      transparent 30%),
+
+    radial-gradient(circle at bottom right,
+      rgba(255,215,0,.06),
+      transparent 30%),
+
+    linear-gradient(
+      135deg,
+      #000000 0%,
+      #111111 35%,
+      #1a1a1a 65%,
+      #000000 100%
+    );
+
+  position:relative;
+  overflow:hidden;
+}
+
+/* GOLDEN DECORATION */
+
+.packages-container::before{
+  content:"";
+  position:absolute;
+
+  width:400px;
+  height:400px;
+
+  border-radius:50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(255,215,0,.08),
+      transparent
+    );
+
+  top:-150px;
+  left:-150px;
+}
+
+.packages-container::after{
+  content:"";
+  position:absolute;
+
+  width:350px;
+  height:350px;
+
+  border-radius:50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(255,215,0,.06),
+      transparent
+    );
+
+  bottom:-120px;
+  right:-120px;
+}
+
+/* TITLE */
+
+.packages-title{
+  text-align:center;
+  font-family:"Times New Roman", Times, serif;
+
+  font-size:2.3rem;
+
+  font-weight:bold;
+
+  color:#FFD700;
+
+  margin-bottom:10px;
+
+  letter-spacing:1px;
+
+  position:relative;
+  z-index:2;
+
+  text-shadow:
+    0 0 10px rgba(255,215,0,.4),
+    0 0 20px rgba(255,215,0,.2);
+}
+
+/* SUBTITLE */
+
+.packages-subtitle{
+  text-align:center;
+
+  color:#d4af37;
+
+  font-size:1rem;
+
+  margin-bottom:40px;
+
+  letter-spacing:1px;
+
+  position:relative;
+  z-index:2;
+}
+
+/* GRID */
+
+.packages-grid{
+  display:grid;
+
+  grid-template-columns:repeat(3,320px);
+
+  justify-content:center;
+
+  gap:25px;
+
+  position:relative;
+  z-index:2;
+}
+
+/* CARD */
+
+.package-card{
+  width:320px;
+
+  height:460px;
+
+  background:#ffffff;
+
+  border-radius:20px;
+
+  overflow:hidden;
+
+  border:2px solid rgba(255,215,0,.20);
+
+  box-shadow:
+    0 10px 25px rgba(0,0,0,.5);
+
+  transition:.35s ease;
+}
+
+.package-card:hover{
+  transform:translateY(-10px);
+
+  border-color:#FFD700;
+
+  box-shadow:
+    0 0 20px rgba(255,215,0,.25);
+}
+
+/* IMAGE */
+
+.package-card img{
+  width:100%;
+
+  height:190px;
+
+  object-fit:cover;
+}
+
+/* CONTENT */
+
+.package-content{
+  padding:18px;
+}
+
+.package-content h2{
+  font-size:1.25rem;
+
+  color:#111827;
+
+  margin-bottom:14px;
+
+  font-weight:700;
+}
+
+.package-content p{
+  margin-bottom:10px;
+
+  color:#4b5563;
+
+  font-size:1rem;
+}
+
+/* PRICE */
+
+.price{
+  font-size:1.6rem !important;
+
+  color:#d4af37 !important;
+
+  font-weight:700;
+}
+
+/* BUTTON */
+
+.book-btn{
+  width:100%;
+
+  padding:13px;
+
+  margin-top:18px;
+
+  border:none;
+
+  border-radius:12px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #b8860b,
+      #FFD700
+    );
+
+  color:black;
+
+  font-size:1rem;
+
+  font-weight:700;
+
+  cursor:pointer;
+
+  transition:.3s;
+}
+
+.book-btn:hover{
+  transform:scale(1.03);
+
+  background:
+    linear-gradient(
+      135deg,
+      #FFD700,
+      #fff3b0
+    );
+}
+
+/* TABLET */
+
+@media(max-width:1100px){
+
+  .packages-grid{
+    grid-template-columns:repeat(2,320px);
+  }
+}
+
+/* MOBILE */
+
+@media(max-width:768px){
+
+  .packages-grid{
+    grid-template-columns:1fr;
+  }
+
+  .package-card{
+    width:100%;
+    max-width:320px;
+    margin:auto;
+  }
+
+  .packages-title{
+    font-size:1.8rem;
+  }
+
+  .packages-subtitle{
+    font-size:.9rem;
+  }
+}
