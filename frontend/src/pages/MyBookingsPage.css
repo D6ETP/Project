@@ -1,0 +1,61 @@
+.my-bookings-page {
+  min-height: 100vh;
+  background: #f5f7fa;
+}
+
+.page-title {
+  color: #0b3c5d;
+  font-weight: 700;
+}
+
+.booking-history-card {
+  border: none;
+  border-radius: 25px;
+
+  overflow: hidden;
+
+  transition: 0.3s;
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.08);
+}
+
+.booking-history-card:hover {
+  transform: translateY(-5px);
+}
+
+.booking-header {
+  background: linear-gradient(
+    135deg,
+    #0b3c5d,
+    #328cc1
+  );
+
+  color: white;
+
+  padding: 15px 20px;
+}
+
+.booking-body {
+  padding: 25px;
+}
+
+.amount-text {
+  color: #198754;
+  font-weight: bold;
+  font-size: 24px;
+}
+
+.cancel-btn {
+  border-radius: 10px;
+  min-width: 150px;
+}
+
+.empty-bookings {
+  text-align: center;
+  padding: 50px;
+  background: white;
+  border-radius: 20px;
+  box-shadow:
+    0 10px 25px rgba(0,0,0,.08);
+}
