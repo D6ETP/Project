@@ -1,0 +1,128 @@
+/* NAVBAR */
+
+.custom-navbar {
+  background: rgba(13, 17, 23, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+
+  padding: 12px 0;
+  transition: all 0.3s ease;
+}
+
+/* LOGO */
+
+.navbar-brand {
+  color: #ffd43b !important;
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-icon {
+  font-size: 1.4rem;
+}
+
+/* NAV LINKS */
+
+.nav-link {
+  color: #ffffff !important;
+  font-weight: 500;
+  margin: 0 8px;
+
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* Underline Animation */
+
+.nav-link::after {
+  content: "";
+
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+
+  width: 0;
+  height: 2px;
+
+  background: #ffd43b;
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.nav-link:hover {
+  color: #ffd43b !important;
+}
+
+/* ACTIVE PAGE */
+
+.nav-link.active {
+  color: #ffd43b !important;
+}
+
+/* LOGOUT BUTTON */
+
+.logout-btn {
+  border-radius: 30px;
+  padding: 8px 22px;
+  font-weight: 600;
+
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* LOGIN BUTTON */
+
+.btn-outline-light {
+  border-radius: 30px;
+}
+
+/* SIGNUP BUTTON */
+
+.btn-warning {
+  border-radius: 30px;
+  font-weight: 600;
+}
+
+/* MOBILE */
+
+@media (max-width: 991px) {
+
+  .navbar-collapse {
+    background: rgba(15, 23, 42, 0.97);
+    border-radius: 15px;
+    padding: 15px;
+    margin-top: 12px;
+  }
+
+  .navbar-nav {
+    text-align: center;
+  }
+
+  .nav-item {
+    margin-bottom: 10px;
+  }
+
+  .nav-link {
+    display: block;
+    padding: 10px;
+  }
+
+  .btn-warning,
+  .btn-outline-light,
+  .logout-btn {
+    width: 100%;
+  }
+}
