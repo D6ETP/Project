@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import "./Packages.css";
-
+//added
 import goa from "../assets/goa.jpg";
 import lonavala from "../assets/lonavala.jpg";
 import konkan from "../assets/konkan.jpg";
