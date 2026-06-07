@@ -1,0 +1,71 @@
+/* PAGE BACKGROUND */
+
+.schedule-page {
+  min-height: 100vh;
+  background: #f5f7fa;
+  padding-bottom: 50px;
+}
+
+/* HEADER */
+
+.schedule-title {
+  font-size: 42px;
+  font-weight: 700;
+  color: #0b3c5d;
+}
+
+.schedule-subtitle {
+  font-size: 18px;
+  color: #64748b;
+}
+
+/* SEARCH BOX */
+
+.search-box {
+  background: white;
+  border: none;
+  border-radius: 24px;
+  padding: 30px;
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.08);
+}
+
+.search-box input,
+.search-box select {
+  height: 55px;
+  border-radius: 12px;
+}
+
+.search-box button {
+  height: 55px;
+  min-width: 110px;
+}
+
+/* RESULT COUNT */
+
+.result-count {
+  color: #0b3c5d;
+  font-weight: 700;
+  font-size: 22px;
+}
+
+/* EMPTY RESULT */
+
+.no-bus-alert {
+  border-radius: 15px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+
+  .schedule-title {
+    font-size: 32px;
+  }
+
+  .search-box {
+    padding: 20px;
+  }
+
+}
