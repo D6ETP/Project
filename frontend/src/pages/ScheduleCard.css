@@ -1,0 +1,48 @@
+.schedule-card {
+  border: none;
+  border-radius: 20px;
+  overflow: hidden;
+
+  transition: all 0.3s ease;
+
+  box-shadow:
+    0 10px 25px rgba(0,0,0,.08);
+}
+
+.schedule-card:hover {
+  transform: translateY(-5px);
+
+  box-shadow:
+    0 20px 40px rgba(0,0,0,.15);
+}
+
+.bus-image {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+}
+
+.route-text {
+  color: #0b3c5d;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.fare {
+  color: #198754;
+  font-weight: 700;
+  font-size: 34px;
+}
+
+.schedule-card .btn {
+  border-radius: 12px;
+  min-width: 150px;
+}
+
+.schedule-card small {
+  color: #64748b;
+}
+
+.schedule-card h6 {
+  font-weight: 600;
+}
