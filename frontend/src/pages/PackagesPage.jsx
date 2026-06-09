@@ -61,7 +61,7 @@ function PackagesPage() {
               <button
                 className="book-btn"
                 onClick={() =>
-                  navigate("/package-form", {
+                  navigate("/packages-form", {
                     state: pkg,
                   })
                 }

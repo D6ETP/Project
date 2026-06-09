@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { getSchedules } from "../services/scheduleService";
 import ScheduleCard from "../components/ScheduleCard";
-import "../styles/SchedulePage.css";
+import "./SchedulePage.css";
 
 function SchedulePage() {
   const schedules = getSchedules();

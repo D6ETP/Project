@@ -1,3 +1,5 @@
+ @import url(https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap);
+/*
 :root {
   --text: #6b6375;
   --text-h: #08060d;
@@ -108,4 +110,27 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+} */
+
+
+* {
+  font-family: 'Inter', sans-serif;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #f1f5f9;
+  font-size: 14px;
+  color: #1e293b;
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  text-align: left;
+  border: none;
+  min-height: 100vh;
+  display: block;
 }

@@ -1,0 +1,175 @@
+* {
+  box-sizing: border-box;
+}
+
+.home-page {
+  min-height: 100vh;
+  background: #f5f7fb;
+}
+
+/* Hero Section */
+
+.hero-section {
+  height: 80vh;
+  background: linear-gradient(
+      rgba(0, 0, 0, 0.55),
+      rgba(0, 0, 0, 0.55)
+    ),
+    url("https://images.unsplash.com/photo-1544620347-c4fd4a3d5957");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-overlay {
+  text-align: center;
+  color: white;
+  width: 90%;
+  max-width: 1100px;
+}
+
+.hero-overlay h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.hero-overlay p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+/* Search Card */
+
+.search-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  padding: 25px;
+  border-radius: 18px;
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.search-card input {
+  border: none;
+  padding: 14px;
+  border-radius: 10px;
+  min-width: 220px;
+}
+
+.search-card button {
+  background: #0d6efd;
+  color: white;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.search-card button:hover {
+  background: #0b5ed7;
+}
+
+/* Stats */
+
+.stats-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  padding: 50px;
+}
+
+.stat-box {
+  background: white;
+  padding: 25px;
+  text-align: center;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.stat-box h3 {
+  color: #0d6efd;
+  font-size: 2rem;
+  margin-bottom: 5px;
+}
+
+/* Journeys */
+
+.journeys-section {
+  padding: 50px;
+}
+
+.journeys-section h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-weight: 700;
+}
+
+.journey-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+}
+
+.journey-card {
+  background: white;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  transition: 0.3s;
+}
+
+.journey-card:hover {
+  transform: translateY(-6px);
+}
+
+.journey-header {
+  background: linear-gradient(135deg, #2563eb, #0ea5e9);
+  color: white;
+  padding: 18px;
+}
+
+.journey-body {
+  padding: 20px;
+}
+
+.details-btn {
+  width: 100%;
+  border: none;
+  background: #2563eb;
+  color: white;
+  padding: 12px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.details-btn:hover {
+  background: #1d4ed8;
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  .hero-overlay h1 {
+    font-size: 2rem;
+  }
+
+  .search-card {
+    flex-direction: column;
+  }
+
+  .search-card input,
+  .search-card button {
+    width: 100%;
+  }
+
+  .stats-section,
+  .journeys-section {
+    padding: 20px;
+  }
+}

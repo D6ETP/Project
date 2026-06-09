@@ -1,5 +1,6 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 const menuItems = [
   { name: "Dashboard",         path: "/admin/dashboard",  icon: "bi-speedometer2" },
@@ -12,6 +13,14 @@ const menuItems = [
 
 /* Shared sidebar content — used by both desktop and mobile */
 function SidebarContent() {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/admin/login");
+  };
+
   return (
     <>
       {/* Brand */}
@@ -46,10 +55,14 @@ function SidebarContent() {
       {/* Logout */}
       <ul className="sb-nav">
         <li>
-          <NavLink to="/admin/login" className="sb-link" style={{ color: "#f87171" }}>
+          <button 
+            onClick={handleLogout}
+            className="sb-link" 
+            style={{ color: "#f87171", background: "none", border: "none", cursor: "pointer", width: "100%", textAlign: "left", padding: "10px 15px" }}
+          >
             <i className="bi bi-box-arrow-right" />
             Logout
-          </NavLink>
+          </button>
         </li>
       </ul>
     </>
