@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FaBus, FaEye, FaEyeSlash } from "react-icons/fa";
 import { toast } from "react-toastify";
-import Home from "./Home";
 import { useAuth } from "../context/AuthContext";
 import "./Login.css";
 
@@ -21,20 +20,16 @@ function Login() {
       email === "admin@example.com" &&
       password === "admin123"
     ) {
-      login();
-
+      login("admin");
       toast.success("Welcome Admin!");
-
       navigate("/admin/dashboard");
     }
     else if (
       email === "user@example.com" &&
       password === "user123"
     ) {
-      login();
-
+      login("user");
       toast.success("Welcome Back!");
-
       navigate("/home");
     }
     else {
@@ -46,10 +41,10 @@ function Login() {
     <div className="login-container">
 
       <div className="login-card">
-
+        
         <div className="login-header">
           <FaBus className="login-icon" />
-          <h2>Tour Booking</h2>
+          <h2>Easy Travel Planner</h2>
           <p>Plan Your Next Journey</p>
         </div>
 
@@ -134,6 +129,15 @@ function Login() {
           <Link to="/signup">
             Sign Up
           </Link>
+        </div>
+
+        <div className="admin-section">
+          <p>
+            Are you an admin? 
+            <Link to="/admin/login">
+               Login as Admin
+            </Link>
+          </p>
         </div>
 
         <div className="demo-box">

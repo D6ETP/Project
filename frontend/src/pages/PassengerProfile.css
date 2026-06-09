@@ -1,3 +1,5 @@
+/* Background */
+
 .profile-container {
   min-height: 100vh;
 
@@ -9,13 +11,11 @@
 
   background:
     linear-gradient(
-      rgba(0,0,0,0.45),
-      rgba(0,0,0,0.45)
-    ),
-    url("../assets/login-bg-iimg.jpg");
-
-  background-size: cover;
-  background-position: center;
+      135deg,
+      #000000,
+      #111111,
+      #1a1a1a
+    );
 }
 
 /* Card */
@@ -31,7 +31,7 @@
       255,
       255,
       255,
-      0.15
+      0.08
     );
 
   backdrop-filter: blur(15px);
@@ -39,12 +39,16 @@
 
   border-radius: 25px;
 
-  border: 1px solid
-    rgba(255,255,255,0.2);
+  border: 2px solid #d4af37;
 
   box-shadow:
-    0 10px 35px
-    rgba(0,0,0,0.3);
+    0 0 30px
+    rgba(
+      212,
+      175,
+      55,
+      0.25
+    );
 }
 
 /* Header */
@@ -56,18 +60,18 @@
 
 .profile-avatar {
   font-size: 5rem;
-  color: #ffd43b;
+  color: #d4af37;
   margin-bottom: 10px;
 }
 
 .profile-header h2 {
-  color: white;
+  color: #d4af37;
   font-weight: 700;
   margin-bottom: 8px;
 }
 
 .profile-header p {
-  color: #e5e5e5;
+  color: #d9d9d9;
 }
 
 /* Form */
@@ -78,9 +82,9 @@
 
 .form-group label {
   display: block;
-  color: white;
+  color: #d4af37;
   margin-bottom: 6px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .form-group input {
@@ -88,8 +92,15 @@
 
   padding: 14px;
 
-  border: none;
   border-radius: 12px;
+
+  border: 1px solid
+    rgba(
+      212,
+      175,
+      55,
+      0.3
+    );
 
   outline: none;
 
@@ -100,18 +111,29 @@
       255,
       255,
       255,
-      0.18
+      0.08
     );
 
-  box-sizing: border-box;
-
   transition: 0.3s;
+
+  box-sizing: border-box;
+}
+
+.form-group input::placeholder {
+  color: #cfcfcf;
 }
 
 .form-group input:focus {
+  border-color: #d4af37;
+
   box-shadow:
-    0 0 0 3px
-    rgba(255,212,59,0.3);
+    0 0 12px
+    rgba(
+      212,
+      175,
+      55,
+      0.4
+    );
 }
 
 .form-group input[type="date"] {
@@ -131,14 +153,14 @@
   background:
     linear-gradient(
       135deg,
-      #ffb703,
-      #fb8500
+      #b8860b,
+      #FFD700
     );
 
-  color: white;
+  color: black;
 
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: bold;
 
   cursor: pointer;
 
@@ -154,8 +176,13 @@
   transform: translateY(-3px);
 
   box-shadow:
-    0 10px 20px
-    rgba(251,133,0,0.4);
+    0 0 20px
+    rgba(
+      212,
+      175,
+      55,
+      0.45
+    );
 }
 
 /* Mobile */

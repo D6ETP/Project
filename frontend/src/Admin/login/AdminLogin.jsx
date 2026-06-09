@@ -1,9 +1,12 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import { useAuth } from "../../context/AuthContext";
 import "./AdminLogin.css";
 
 function AdminLogin() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
 
@@ -15,9 +18,17 @@ function AdminLogin() {
       setError("Please fill in all fields.");
       return;
     }
-    // Simple dummy auth — any email + password works
-    setError("");
-    navigate("/admin/dashboard");
+
+    // Admin credentials validation
+    if (formData.email === "admin@example.com" && formData.password === "admin123") {
+      login("admin");
+      setError("");
+      toast.success("Welcome Admin!");
+      navigate("/admin/dashboard");
+    } else {
+      setError("Invalid email or password");
+      toast.error("Invalid credentials");
+    }
   };
 
   return (
@@ -86,8 +97,17 @@ function AdminLogin() {
             </button>
           </form>
 
+          <div style={{ textAlign: "center", marginTop: "20px", paddingTop: "20px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+            <p style={{ margin: "10px 0", fontSize: "14px", color: "#e5e7eb" }}>
+              User login?
+              <Link to="/login" style={{ marginLeft: "8px", color: "#60a5fa", fontWeight: "bold", textDecoration: "none" }}>
+                Back to User Login
+              </Link>
+            </p>
+          </div>
+
           <p className="login-hint">
-            Use any email &amp; password to continue
+            Demo: admin@example.com / admin123
           </p>
         </div>
       </div>

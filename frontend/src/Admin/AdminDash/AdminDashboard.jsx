@@ -3,6 +3,7 @@ import AdminSidebar from "../components/AdminSidebar";
 import AdminNavbar from "../components/AdminNavbar";
 import { dashboardStats, recentBookings } from "../data/dashboard.js";
 
+
 function AdminDashboard() {
   return (
     <div className="dashboard-container">

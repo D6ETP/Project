@@ -27,7 +27,7 @@ function Navbar() {
 
         <Link className="navbar-brand" to="/">
           <FaBus className="brand-icon" />
-          TourBooking
+          Easy Travel Planner
         </Link>
 
         <button
@@ -75,9 +75,9 @@ function Navbar() {
                 <li className="nav-item">
                   <Link
                     className="nav-link"
-                    to="/schedule"
+                    to="/packages"
                   >
-                    Schedule
+                    Tour Packages
                   </Link>
                 </li>
 

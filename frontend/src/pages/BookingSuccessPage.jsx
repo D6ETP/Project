@@ -178,14 +178,14 @@ function BookingSuccessPage() {
             </button>
 
             <Link
-              to="/bookings"
+              to="/mybookings"
               className="btn btn-warning me-2"
             >
               My Bookings
             </Link>
 
             <Link
-              to="/"
+              to="/home"
               className="btn btn-secondary"
             >
               Home
