@@ -1,9 +1,4 @@
-/* ============================================
-   admin.css — Shared styles for all admin pages
-   Bus Management System | Final Year CSE Project
-   ============================================ */
 
-/* Layout */
 .dashboard-container {
   display: flex;
   min-height: 100vh;
@@ -28,7 +23,6 @@
   z-index: 1050;
 }
 
-/* Override Bootstrap offcanvas default width to match 250px */
 .offcanvas.admin-sidebar {
   max-width: 250px;
 }
