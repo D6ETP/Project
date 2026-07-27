@@ -1,39 +1,108 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaUserCircle, FaSave } from "react-icons/fa";
 import { toast } from "react-toastify";
+import axios from "axios";
 import "./PassengerProfile.css";
 
 function PassengerProfile() {
+
   const [profile, setProfile] = useState({
-    name: "John Doe",
-    email: "johndoe@example.com",
-    phone: "9876543210",
-    dob: "1995-05-15",
+    id: "",
+    fullName: "",
+    email: "",
+    phone: "",
+    gender: "",
+    dateOfBirth: "",
+    address: ""
   });
 
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+
+    try {
+
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        toast.error("Please login first.");
+        return;
+      }
+
+      const response = await axios.get(
+        "http://localhost:8082/users/profile",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      setProfile(response.data);
+
+    } catch (error) {
+
+      console.log(error);
+
+      if (error.response) {
+        toast.error(error.response.data.message || "Unable to load profile");
+      } else {
+        toast.error("Unable to connect to User Service");
+      }
+
+    }
+
+  };
+
   const handleChange = (e) => {
+
     const { name, value } = e.target;
 
     setProfile({
       ...profile,
-      [name]: value,
+      [name]: value
     });
+
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
+
     e.preventDefault();
 
-    toast.success(
-      "Profile Updated Successfully!",
-      {
-        position: "top-center",
-      }
-    );
+    try {
 
-    console.log(profile);
+      const token = localStorage.getItem("token");
+
+      await axios.put(
+        "http://localhost:8082/users",
+        profile,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      toast.success("Profile Updated Successfully");
+
+    } catch (error) {
+
+      console.log(error);
+
+      if (error.response) {
+        toast.error(error.response.data.message || "Update Failed");
+      } else {
+        toast.error("Unable to connect to User Service");
+      }
+
+    }
+
   };
 
   return (
+
     <div className="profile-container">
 
       <div className="profile-card">
@@ -44,60 +113,92 @@ function PassengerProfile() {
 
           <h2>Passenger Profile</h2>
 
-          <p>
-            Manage your account information
-          </p>
+          <p>Manage your account information</p>
 
         </div>
 
         <form onSubmit={handleSubmit}>
 
           <div className="form-group">
+
             <label>Full Name</label>
 
             <input
               type="text"
-              name="name"
-              value={profile.name}
+              name="fullName"
+              value={profile.fullName}
               onChange={handleChange}
               required
             />
+
           </div>
 
           <div className="form-group">
-            <label>Email Address</label>
+
+            <label>Email</label>
 
             <input
               type="email"
               name="email"
               value={profile.email}
-              onChange={handleChange}
-              required
+              readOnly
             />
+
           </div>
 
           <div className="form-group">
-            <label>Phone Number</label>
+
+            <label>Phone</label>
 
             <input
-              type="tel"
+              type="text"
               name="phone"
-              value={profile.phone}
+              value={profile.phone || ""}
               onChange={handleChange}
-              required
             />
+
           </div>
 
           <div className="form-group">
-            <label>Date of Birth</label>
+
+            <label>Gender</label>
+
+            <select
+              name="gender"
+              value={profile.gender || ""}
+              onChange={handleChange}
+            >
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+
+          </div>
+
+          <div className="form-group">
+
+            <label>Date Of Birth</label>
 
             <input
               type="date"
-              name="dob"
-              value={profile.dob}
+              name="dateOfBirth"
+              value={profile.dateOfBirth || ""}
               onChange={handleChange}
-              required
             />
+
+          </div>
+
+          <div className="form-group">
+
+            <label>Address</label>
+
+            <textarea
+              name="address"
+              value={profile.address || ""}
+              onChange={handleChange}
+            />
+
           </div>
 
           <button
@@ -113,7 +214,9 @@ function PassengerProfile() {
       </div>
 
     </div>
+
   );
+
 }
 
 export default PassengerProfile;

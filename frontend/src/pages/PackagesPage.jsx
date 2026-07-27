@@ -18,6 +18,7 @@ import shirdi from "../assets/shirdi.jpg";
 import pandharpur from "../assets/pandharpur.jpg";
 import kedarnath from "../assets/kedarnath.jpg";
 
+
 function PackagesPage() {
   const navigate = useNavigate();
 

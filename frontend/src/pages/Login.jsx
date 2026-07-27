@@ -5,6 +5,8 @@ import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
 import "./Login.css";
 
+import axios from "axios";
+
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -13,29 +15,66 @@ function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleLogin = (e) => {
-    e.preventDefault();
+  const handleLogin = async (e) => {
+  e.preventDefault();
 
-    if (
-      email === "admin@example.com" &&
-      password === "admin123"
-    ) {
-      login("admin");
-      toast.success("Welcome Admin!");
-      navigate("/admin/dashboard");
+  try {
+
+    const response = await axios.post(
+      "http://localhost:8081/auth/login",
+      {
+        email,
+        password,
+      }
+    );
+
+    const token = response.data.token;
+
+    // Save JWT
+    localStorage.setItem("token", token);
+    localStorage.setItem("email",email);
+
+    // Save user info (optional)
+    login("user");
+
+    toast.success("Login Successful");
+
+    navigate("/home");
+
+  } catch (error) {
+
+    if (error.response) {
+      toast.error(error.response.data.message);
+    } else {
+      toast.error("Server Error");
     }
-    else if (
-      email === "user@example.com" &&
-      password === "user123"
-    ) {
-      login("user");
-      toast.success("Welcome Back!");
-      navigate("/home");
-    }
-    else {
-      toast.error("Invalid Email or Password");
-    }
-  };
+
+  }
+};
+
+  // const handleLogin = async (e) => {
+  //   e.preventDefault();
+
+  //   if (
+  //     email === "admin@example.com" &&
+  //     password === "admin123"
+  //   ) {
+  //     login("admin");
+  //     toast.success("Welcome Admin!");
+  //     navigate("/admin/dashboard");
+  //   }
+  //   else if (
+  //     email === "user@example.com" &&
+  //     password === "user123"
+  //   ) {
+  //     login("user");
+  //     toast.success("Welcome Back!");
+  //     navigate("/home");
+  //   }
+  //   else {
+  //     toast.error("Invalid Email or Password");
+  //   }
+  // };
 
   return (
     <div className="login-container">

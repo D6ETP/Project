@@ -119,9 +119,11 @@
   background: rgba(255,255,255,0.95);
 
   font-size: 15px;
+  color: black;   /* <-- Added this line */
 
   transition: all 0.3s ease;
 }
+  
 
 .form-group input:focus {
   transform: translateY(-2px);
