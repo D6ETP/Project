@@ -19,5 +19,9 @@
 *.log
 **/logs/
 
+# C# files
+**/bin/
+**/obj/
+
 # React / Node (Frontend)
 **/node_modules/
