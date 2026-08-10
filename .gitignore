@@ -1,12 +1,11 @@
-# ============================================================
-#   EasyTravel - .gitignore
-#   Covers: Spring Boot, React, Python, .NET, secrets
-# ============================================================
+# EasyTravel .gitignore
+# Covers: Spring Boot, React, Python, .NET, secrets
 
-# ── Secrets (NEVER commit) ───────────────────────────────
+# Secrets (NEVER commit)
 .env
+.env.example
 
-# ── Java / Spring Boot / Maven ───────────────────────────
+# Java / Spring Boot / Maven
 **/target/
 **/.mvn/wrapper/maven-wrapper.jar
 **/mvnw.cmd
@@ -20,41 +19,5 @@
 *.log
 **/logs/
 
-# ── React / Node (Frontend) ──────────────────────────────
+# React / Node (Frontend)
 **/node_modules/
-**/dist/
-**/build/
-frontend/.env
-frontend/.env.local
-frontend/.env.production
-
-# ── Python (chatbot-service) ─────────────────────────────
-**/venv/
-**/__pycache__/
-**/*.pyc
-**/*.pyo
-**/*.pyd
-**/.Python
-**/pip-log.txt
-
-# ── .NET (LoggingService) ────────────────────────────────
-**/bin/
-**/obj/
-*.user
-*.suo
-*.sln.docstates
-.vs/
-
-# ── IDE & OS files ───────────────────────────────────────
-**/.vscode/
-**/.idea/
-**/*.iml
-.DS_Store
-Thumbs.db
-desktop.ini
-
-# ── Eclipse (if any) ─────────────────────────────────────
-**/.metadata/
-**/.classpath
-**/.project
-**/.settings/
