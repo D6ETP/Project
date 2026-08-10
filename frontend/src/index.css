@@ -1,0 +1,347 @@
+/* ==============================================
+   EasyTravel Global Design System
+   Variables and Base Styles 
+   White + Royal Blue + Sky Blue + Orange theme
+   ============================================== */
+
+:root {
+  --brand-blue: #0B3C5D;
+  --brand-sky: #328CC1;
+  --brand-orange: #E07B39;
+  --brand-green: #27AE60;
+  --brand-red: #E74C3C;
+  --bg-light: #F0F4F8;
+  --text-dark: #1A1A2E;
+  --text-muted: #6B7280;
+  --card-shadow: 0 4px 20px rgba(11, 60, 93, 0.08);
+  --card-shadow-hover: 0 8px 30px rgba(11, 60, 93, 0.16);
+}
+
+* { box-sizing: border-box; }
+
+html, body { overflow-x: hidden; }
+img { max-width: 100%; height: auto; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+  min-height: 100vh;
+}
+
+/* ---- Navbar ---- */
+.sw-navbar {
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(11, 60, 93, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.sw-brand { font-size: 1.5rem; font-weight: 800; color: var(--brand-blue); letter-spacing: -0.5px; }
+.sw-brand span { color: var(--brand-sky); }
+.sw-nav-link { color: var(--text-dark) !important; font-weight: 500; transition: color 0.2s; }
+.sw-nav-link:hover { color: var(--brand-sky) !important; }
+
+/* ---- Buttons ---- */
+.btn-sw-primary {
+  background: var(--brand-blue);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 24px;
+  font-weight: 600;
+  transition: all 0.2s;
+  cursor: pointer;
+  display: inline-block;
+  text-align: center;
+}
+.btn-sw-primary:hover { background: var(--brand-sky); color: #fff; transform: translateY(-1px); box-shadow: 0 4px 15px rgba(50, 140, 193, 0.4); }
+
+.btn-sw-orange {
+  background: var(--brand-orange);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 28px;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: all 0.2s;
+  cursor: pointer;
+  display: inline-block;
+  text-align: center;
+}
+.btn-sw-orange:hover { background: #c0672a; color: #fff; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(224, 123, 57, 0.4); }
+.btn-sw-orange:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.btn-sw-success {
+  background: var(--brand-green);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 28px;
+  font-weight: 700;
+  transition: all 0.2s;
+  cursor: pointer;
+  display: inline-block;
+  text-align: center;
+}
+.btn-sw-success:hover { filter: brightness(1.1); color: #fff; transform: translateY(-1px); }
+
+/* ---- Cards ---- */
+.sw-card {
+  background: #fff;
+  border: none;
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+}
+.sw-card:hover { box-shadow: var(--card-shadow-hover); }
+
+/* ---- Form Inputs ---- */
+.sw-input {
+  border: 1.5px solid #E5E7EB;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  background: #fff;
+}
+.sw-input:focus { outline: none; border-color: var(--brand-sky); box-shadow: 0 0 0 3px rgba(50,140,193,0.15); }
+
+/* ---- Page Header ---- */
+.page-header {
+  background: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-sky) 100%);
+  color: #fff;
+  padding: 40px 0;
+}
+
+/* ---- Seat Map ---- */
+.seat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.seat-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.seat-available { background: #EFF6FF; border-color: var(--brand-sky); color: var(--brand-blue); }
+.seat-available:hover { background: var(--brand-sky); color: #fff; transform: scale(1.05); }
+.seat-selected { background: var(--brand-green); border-color: var(--brand-green); color: #fff; }
+.seat-booked { background: #F3F4F6; border-color: #D1D5DB; color: #9CA3AF; cursor: not-allowed; }
+
+/* ---- Status Badges ---- */
+.badge-confirmed { background: #D1FAE5; color: #065F46; font-weight: 600; padding: 4px 12px; border-radius: 20px; }
+.badge-cancelled { background: #FEE2E2; color: #991B1B; font-weight: 600; padding: 4px 12px; border-radius: 20px; }
+
+/* ---- Payment Options ---- */
+.payment-option {
+  border: 2px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.payment-option:hover { border-color: var(--brand-sky); background: #F0F9FF; }
+.payment-option.active { border-color: var(--brand-blue); background: #EFF6FF; }
+
+/* ---- Ticket ---- */
+.ticket-card {
+  background: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(11,60,93,0.15);
+  max-width: 560px;
+  margin: 0 auto;
+}
+.ticket-header { background: linear-gradient(135deg, var(--brand-blue), var(--brand-sky)); padding: 24px 28px; color: #fff; }
+.ticket-body { padding: 28px; }
+.ticket-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #E5E7EB; }
+.ticket-row:last-child { border-bottom: none; }
+.ticket-label { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+.ticket-value { font-weight: 600; color: var(--text-dark); }
+
+/* ---- Spinner overlay ---- */
+.spinner-overlay { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; }
+.spinner-border-custom { width: 3rem; height: 3rem; border-width: 4px; border-color: var(--brand-blue); border-right-color: transparent; }
+
+/* ==============================================
+   FLUID TYPOGRAPHY UTILITIES
+   Use these classes instead of inline style fontSize
+   ============================================== */
+.fs-hero {
+  font-size: clamp(1.75rem, 5vw, 3.2rem);
+  font-weight: 900;
+  line-height: 1.2;
+}
+.fs-section {
+  font-size: clamp(1.3rem, 3vw, 2rem);
+  font-weight: 800;
+}
+.fs-subsection {
+  font-size: clamp(1rem, 2.5vw, 1.4rem);
+  font-weight: 700;
+}
+
+/* ==============================================
+   ADMIN TABS — Horizontally scrollable strip
+   Prevents tab wrapping on mobile
+   ============================================== */
+.admin-tabs-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 6px;
+  flex-wrap: nowrap;
+  border-bottom: 2px solid #dee2e6;
+  margin-bottom: 1rem;
+}
+.admin-tabs-scroll::-webkit-scrollbar { display: none; }
+.admin-tabs-scroll .btn {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ==============================================
+   RESPONSIVE BREAKPOINTS
+   Mobile: < 768px
+   Tablet: 576px – 767px
+   Tablet-landscape / small laptop: 768px – 1023px
+   Large: >= 1440px
+   XL Monitor: >= 1920px
+   ============================================== */
+
+/* ---- Mobile (< 768px) ---- */
+@media (max-width: 767.98px) {
+
+  /* Touch targets */
+  .btn, button { min-height: 40px; }
+  .btn-xs { min-height: 32px !important; min-width: auto !important; }
+
+  /* Page headers */
+  .page-header { padding: 18px 0; }
+  .page-header h3 { font-size: 1.15rem !important; margin-bottom: 0.15rem !important; }
+  .page-header h4 { font-size: 1.1rem !important; }
+  .page-header p { font-size: 0.8rem !important; }
+
+  /* Full-width primary action buttons */
+  .btn-sw-orange, .btn-sw-primary, .btn-sw-success {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 16px;
+  }
+
+  /* Seat grid adapts to small screen while keeping 4-column bus layout */
+  .seat-grid {
+    grid-template-columns: repeat(4, minmax(40px, 1fr));
+    gap: 5px;
+  }
+  .seat-btn {
+    width: 100%;
+    height: 42px;
+    font-size: 0.7rem;
+    border-radius: 7px;
+  }
+
+  /* Ticket full width */
+  .ticket-card {
+    max-width: 100%;
+    border-radius: 12px;
+    margin: 0 4px;
+  }
+  .ticket-header { padding: 14px 16px; }
+  .ticket-body { padding: 14px 16px; }
+
+  /* Reduce card padding */
+  .sw-card.p-4 { padding: 0.875rem !important; }
+  .sw-card.p-5 { padding: 1rem !important; }
+
+  /* Tables: smaller text, horizontal scroll already present */
+  .table-responsive .table { font-size: 0.76rem; }
+  .table-responsive .table th,
+  .table-responsive .table td {
+    padding: 5px 7px;
+    white-space: nowrap;
+  }
+
+  /* Container padding */
+  .container { padding-left: 10px; padding-right: 10px; }
+
+  /* Disable hover lift transforms on touch devices */
+  .btn-sw-orange:hover,
+  .btn-sw-primary:hover,
+  .btn-sw-success:hover,
+  .sw-card:hover { transform: none; }
+
+  /* Payment summary card: show above payment form on mobile */
+  .payment-summary-col { order: -1; margin-bottom: 1rem; }
+
+  /* Dashboard sidebar stacks above bookings list */
+  .dashboard-sidebar { margin-bottom: 1rem; }
+
+  /* Admin stat cards: 2 per row */
+  .admin-stats-row > [class*="col-md"] {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+
+  /* Hero section */
+  .hero-min-height { min-height: 60vh !important; }
+  .hero-heading { font-size: clamp(1.6rem, 8vw, 2.5rem) !important; }
+
+  /* SearchBuses form: stack fields */
+  .search-form-row > [class*="col"] {
+    margin-bottom: 0.5rem;
+  }
+
+  /* Modal dialogs */
+  .modal-dialog { margin: 0.5rem; }
+
+  /* Row gaps */
+  .row.gap-4 { gap: 1rem !important; }
+}
+
+/* ---- Tablet portrait (576px – 767px) ---- */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .page-header { padding: 22px 0; }
+  .ticket-card { max-width: 92%; margin: 0 auto; }
+  .seat-grid { gap: 7px; }
+  .seat-btn { height: 46px; font-size: 0.76rem; }
+}
+
+/* ---- Tablet landscape / small laptop (768px – 1023px) ---- */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .page-header { padding: 28px 0; }
+  .ticket-card { max-width: 580px; }
+  .seat-btn { width: 50px; height: 50px; }
+  .admin-stats-row > [class*="col-md"] {
+    flex: 0 0 33.333%;
+    max-width: 33.333%;
+  }
+}
+
+/* ---- Large desktop (1440px+) ---- */
+@media (min-width: 1440px) {
+  .container { max-width: 1320px; }
+  body { font-size: 1.05rem; }
+  .sw-card { border-radius: 20px; }
+  .page-header { padding: 52px 0; }
+  .sw-input { padding: 13px 17px; font-size: 1rem; }
+  .seat-btn { width: 58px; height: 58px; font-size: 0.85rem; }
+}
+
+/* ---- XL Monitor (1920px+) ---- */
+@media (min-width: 1920px) {
+  .container { max-width: 1580px; }
+  .fs-hero { font-size: 3.8rem; }
+  .page-header { padding: 64px 0; }
+  body { font-size: 1.1rem; }
+}
