@@ -1,0 +1,29 @@
+@echo off
+echo Stopping EasyTravel Microservices...
+
+echo Killing processes on port 8761 (Eureka)...
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8761') do taskkill /F /PID %%a 2>nul
+
+echo Killing processes on port 8081 (Auth Service)...
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8081') do taskkill /F /PID %%a 2>nul
+
+echo Killing processes on port 8082 (Booking Service)...
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8082') do taskkill /F /PID %%a 2>nul
+
+echo Killing processes on port 8083 (Admin Service)...
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8083') do taskkill /F /PID %%a 2>nul
+
+echo Killing processes on port 8080 (API Gateway)...
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8080') do taskkill /F /PID %%a 2>nul
+
+echo Killing processes on port 8084 (Notification Service)...
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8084') do taskkill /F /PID %%a 2>nul
+
+echo Killing processes on port 8086 (Logging Service)...
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8086') do taskkill /F /PID %%a 2>nul
+
+echo Killing processes on port 5173 (Frontend)...
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr :5173') do taskkill /F /PID %%a 2>nul
+
+echo All EasyTravel services stopped!
+pause
