@@ -1,0 +1,235 @@
+services:
+  # ─── Database Services ──────────────────────────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: easytravel-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-sarkar}
+      MYSQL_DATABASE: bus_booking_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - easytravel-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-sarkar}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    container_name: easytravel-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - easytravel-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ─── Discovery & Registry ───────────────────────────────────────────────────────
+  eureka-server:
+    build:
+      context: ./Backend/eureka-server
+      dockerfile: Dockerfile
+    container_name: easytravel-eureka
+    restart: unless-stopped
+    ports:
+      - "8761:8761"
+    environment:
+      - SERVER_PORT=8761
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
+      - EUREKA_CLIENT_FETCH_REGISTRY=false
+    networks:
+      - easytravel-net
+
+  # ─── Spring Boot Backend Microservices ──────────────────────────────────────────
+  auth-service:
+    build:
+      context: ./Backend/auth-service
+      dockerfile: Dockerfile
+    container_name: easytravel-auth-service
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/bus_booking_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME:-root}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-sarkar}
+      - JWT_SECRET=${JWT_SECRET}
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+    networks:
+      - easytravel-net
+
+  booking-service:
+    build:
+      context: ./Backend/booking-service
+      dockerfile: Dockerfile
+    container_name: easytravel-booking-service
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/bus_booking_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME:-root}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-sarkar}
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - NOTIFICATION_SERVICE_URL=http://notification-service:8084/api/notifications
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+    networks:
+      - easytravel-net
+
+  admin-service:
+    build:
+      context: ./Backend/admin-service
+      dockerfile: Dockerfile
+    container_name: easytravel-admin-service
+    restart: unless-stopped
+    ports:
+      - "8083:8083"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/bus_booking_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME:-root}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-sarkar}
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+    networks:
+      - easytravel-net
+
+  notification-service:
+    build:
+      context: ./Backend/notification-service
+      dockerfile: Dockerfile
+    container_name: easytravel-notification-service
+    restart: unless-stopped
+    ports:
+      - "8084:8084"
+    depends_on:
+      eureka-server:
+        condition: service_started
+    environment:
+      - SPRING_MAIL_USERNAME=${GMAIL_USERNAME}
+      - SPRING_MAIL_PASSWORD=${GMAIL_APP_PASSWORD}
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+    networks:
+      - easytravel-net
+
+  # ─── API Gateway ───────────────────────────────────────────────────────────────
+  api-gateway:
+    build:
+      context: ./Backend/api-gateway
+      dockerfile: Dockerfile
+    container_name: easytravel-api-gateway
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
+      - auth-service
+      - booking-service
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+    networks:
+      - easytravel-net
+
+  # ─── .NET Logging Service ──────────────────────────────────────────────────────
+  logging-service:
+    build:
+      context: ./Backend/LoggingService/LoggingService
+      dockerfile: Dockerfile
+    container_name: easytravel-logging-service
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    depends_on:
+      - eureka-server
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8086
+      - Eureka__Client__ServiceUrl=http://eureka-server:8761/eureka/
+    volumes:
+      - logging_data:/app/logs
+    networks:
+      - easytravel-net
+
+  # ─── Python AI Chatbot Service ─────────────────────────────────────────────────
+  chatbot-service:
+    build:
+      context: ./Backend/chatbot-service
+      dockerfile: Dockerfile
+    container_name: easytravel-chatbot-service
+    restart: unless-stopped
+    ports:
+      - "8085:8085"
+    depends_on:
+      - api-gateway
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
+      - API_GATEWAY_URL=http://api-gateway:8080/api
+    networks:
+      - easytravel-net
+
+  # ─── React Frontend ────────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: easytravel-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "5173:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - easytravel-net
+
+# ─── Persistent Storage & Network ───────────────────────────────────────────────
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+  logging_data:
+    driver: local
+
+networks:
+  easytravel-net:
+    driver: bridge

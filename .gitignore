@@ -3,13 +3,14 @@
 #   Covers: Spring Boot, React, Python, .NET, secrets
 # ============================================================
 
-# ── Secrets (NEVER commit) ───────────────────────────────
-.env
+# ── Secrets (NEVER commit credentials) ────────────────────
+**/.env
+**/.env.*
+!**/.env.example
 
 # ── Java / Spring Boot / Maven ───────────────────────────
 **/target/
 **/.mvn/wrapper/maven-wrapper.jar
-**/mvnw.cmd
 
 # Spring Boot packaged jars
 *.jar
@@ -24,12 +25,10 @@
 **/node_modules/
 **/dist/
 **/build/
-frontend/.env
-frontend/.env.local
-frontend/.env.production
 
 # ── Python (chatbot-service) ─────────────────────────────
 **/venv/
+**/.venv/
 **/__pycache__/
 **/*.pyc
 **/*.pyo
@@ -57,4 +56,4 @@ desktop.ini
 **/.metadata/
 **/.classpath
 **/.project
-**/.settings/
+**/.settings/
