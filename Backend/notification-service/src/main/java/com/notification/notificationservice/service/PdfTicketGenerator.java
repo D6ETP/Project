@@ -71,7 +71,7 @@ public class PdfTicketGenerator {
             Font labelFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11, navyColor);
             Font valueFont = FontFactory.getFont(FontFactory.HELVETICA, 11, Color.DARK_GRAY);
 
-            PdfPCell r1 = new PdfPCell(new Paragraph("ROUTE: " + source + " → " + destination, routeFont));
+            PdfPCell r1 = new PdfPCell(new Paragraph("ROUTE: " + source + " to " + destination, routeFont));
             r1.setColspan(2);
             r1.setBackgroundColor(lightBg);
             r1.setPadding(10);
@@ -154,7 +154,7 @@ public class PdfTicketGenerator {
             statusCell.setBorder(Rectangle.NO_BORDER);
             summaryTable.addCell(statusCell);
 
-            PdfPCell priceCell = new PdfPCell(new Paragraph("TOTAL PAID: ₹" + totalPaid, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, orangeColor)));
+            PdfPCell priceCell = new PdfPCell(new Paragraph("TOTAL PAID: Rs. " + totalPaid, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, orangeColor)));
             priceCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
             priceCell.setPadding(10);
             priceCell.setBorder(Rectangle.NO_BORDER);

@@ -1,6 +1,8 @@
 package com.notification.notificationservice.service;
 
 import jakarta.mail.internet.MimeMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -14,6 +16,8 @@ import java.util.Map;
 
 @Service
 public class EmailService {
+
+    private static final Logger log = LoggerFactory.getLogger(EmailService.class);
 
     @Autowired
     private JavaMailSender mailSender;
@@ -31,32 +35,31 @@ public class EmailService {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
             message.setTo(toEmail);
-            message.setSubject("EasyTravel — Your Verification OTP");
+            message.setSubject("EasyTravel - Your Verification OTP");
             message.setText(
                 "Hello!\n\n" +
                 "Thank you for signing up with EasyTravel. Your One-Time Password (OTP) for registration is:\n\n" +
                 "    " + otp + "\n\n" +
                 "This OTP is valid for 10 minutes. Do not share this code with anyone.\n\n" +
                 "Safe Travels,\n" +
-                "— EasyTravel Team"
+                "- EasyTravel Team"
             );
             mailSender.send(message);
-            System.out.println("✅ Registration OTP email sent to: " + toEmail);
+            log.info("Registration OTP email sent to: {}", toEmail);
         } catch (Exception e) {
-            System.err.println("⚠️ Failed to send registration OTP to " + toEmail + ": " + e.getMessage());
+            log.error("Failed to send registration OTP to {}: {}", toEmail, e.getMessage());
         }
     }
 
     // --- EVENT 1b: WELCOME EMAIL ON REGISTRATION SUCCESS ---
     public void sendWelcomeEmail(String toEmail, String fullName) {
         if (toEmail == null || toEmail.isEmpty()) return;
-        System.out.println("📧 [NotificationService] Sending welcome email to: " + toEmail);
+        log.info("[NotificationService] Sending welcome email to: {}", toEmail);
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setFrom(fromEmail);
             helper.setTo(toEmail);
-            // Subject without emoji to avoid MessagingException encoding errors with Gmail SMTP
             helper.setSubject("Welcome to EasyTravel, " + (fullName != null ? fullName : "Traveler") + "!");
 
             String name = fullName != null ? fullName : "Traveler";
@@ -89,13 +92,11 @@ public class EmailService {
 
             helper.setText(html, true);
             mailSender.send(message);
-            System.out.println("✅ Welcome email sent to: " + toEmail);
+            log.info("Welcome email sent to: {}", toEmail);
         } catch (Exception e) {
-            System.err.println("⚠️ Failed to send welcome email to " + toEmail + ": " + e.getMessage());
-            e.printStackTrace();
+            log.error("Failed to send welcome email to {}: {}", toEmail, e.getMessage(), e);
         }
     }
-
 
     // --- EVENT 2a: RESET PASSWORD OTP EMAIL ---
     public void sendPasswordResetOtp(String toEmail, String otp) {
@@ -104,18 +105,18 @@ public class EmailService {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
             message.setTo(toEmail);
-            message.setSubject("EasyTravel — Password Reset OTP");
+            message.setSubject("EasyTravel - Password Reset OTP");
             message.setText(
                 "Hello!\n\n" +
                 "You requested a password reset for your EasyTravel account. Your OTP code is:\n\n" +
                 "    " + otp + "\n\n" +
                 "This code is valid for 10 minutes. If you did not request this, please secure your account immediately.\n\n" +
-                "— EasyTravel Support Team"
+                "- EasyTravel Support Team"
             );
             mailSender.send(message);
-            System.out.println("✅ Password reset OTP email sent to: " + toEmail);
+            log.info("Password reset OTP email sent to: {}", toEmail);
         } catch (Exception e) {
-            System.err.println("⚠️ Failed to send password reset OTP to " + toEmail + ": " + e.getMessage());
+            log.error("Failed to send password reset OTP to {}: {}", toEmail, e.getMessage());
         }
     }
 
@@ -126,17 +127,17 @@ public class EmailService {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
             message.setTo(toEmail);
-            message.setSubject("EasyTravel — Password Reset Successful");
+            message.setSubject("EasyTravel - Password Reset Successful");
             message.setText(
                 "Hello,\n\n" +
                 "Your EasyTravel account password was successfully updated.\n\n" +
                 "If you did not make this change, please contact our support team immediately.\n\n" +
-                "— EasyTravel Security Team"
+                "- EasyTravel Security Team"
             );
             mailSender.send(message);
-            System.out.println("✅ Password reset success email sent to: " + toEmail);
+            log.info("Password reset success email sent to: {}", toEmail);
         } catch (Exception e) {
-            System.err.println("⚠️ Failed to send password reset success email to " + toEmail + ": " + e.getMessage());
+            log.error("Failed to send password reset success email to {}: {}", toEmail, e.getMessage());
         }
     }
 
@@ -161,7 +162,7 @@ public class EmailService {
                 .mapToDouble(b -> b.get("amountPaid") != null ? Double.parseDouble(b.get("amountPaid").toString()) : 0)
                 .sum();
 
-            helper.setSubject("🚌 EasyTravel — Ticket Confirmation: " + source + " to " + destination);
+            helper.setSubject("EasyTravel - Ticket Confirmation: " + source + " to " + destination);
 
             // Construct Passenger Rows HTML
             StringBuilder passengerRows = new StringBuilder();
@@ -180,7 +181,7 @@ public class EmailService {
                 + "<div style='max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);'>"
                 // Banner Header
                 + "<div style='background: linear-gradient(135deg, #0B3C5D 0%, #328CC1 100%); padding: 30px; text-align: center; color: #ffffff;'>"
-                + "<h1 style='margin: 0; font-size: 24px;'>🚌 EasyTravel</h1>"
+                + "<h1 style='margin: 0; font-size: 24px;'>EasyTravel</h1>"
                 + "<p style='margin: 5px 0 0 0; opacity: 0.85; font-size: 14px;'>E-Ticket Booking Confirmation</p>"
                 + "</div>"
                 // Journey Banner
@@ -206,7 +207,7 @@ public class EmailService {
                 // Payment summary
                 + "<div style='margin-top: 25px; padding: 15px; background: #EFF6FF; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;'>"
                 + "<div><span style='color: #1E40AF; font-weight: bold;'>Booking Status:</span> <span style='background: #D1FAE5; color: #065F46; padding: 3px 8px; border-radius: 12px; font-weight: bold;'>CONFIRMED</span></div>"
-                + "<div style='font-size: 16px; font-weight: bold; color: #E07B39;'>Total Paid: ₹" + totalPaid + "</div>"
+                + "<div style='font-size: 16px; font-weight: bold; color: #E07B39;'>Total Paid: INR " + totalPaid + "</div>"
                 + "</div>"
                 + "<p style='margin-top: 25px; font-size: 12px; color: #9CA3AF; text-align: center;'>Your official PDF E-Ticket is attached below. Please show this at boarding. Have a safe journey with EasyTravel!</p>"
                 + "</div>"
@@ -223,45 +224,45 @@ public class EmailService {
             }
 
             mailSender.send(message);
-            System.out.println("✅ Beautiful HTML Ticket email with PDF attachment sent to: " + toEmail);
+            log.info("HTML Ticket email with PDF attachment sent to: {}", toEmail);
         } catch (Exception e) {
-            System.err.println("⚠️ Failed to send formatted ticket email to " + toEmail + ": " + e.getMessage());
+            log.error("Failed to send formatted ticket email to {}: {}", toEmail, e.getMessage());
         }
     }
 
     // --- EVENT 4: BOARDING / PICKUP REMINDER ---
     public void sendTripUpcomingReminder(String toEmail, String source, String destination, String departureTime) {
         if (toEmail == null || toEmail.isEmpty()) return;
-        System.out.println("✅ [REMINDER] Sending boarding reminder to " + toEmail + " for " + source + " → " + destination);
+        log.info("[REMINDER] Sending boarding reminder to {} for {} -> {}", toEmail, source, destination);
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
             message.setTo(toEmail);
-            message.setSubject("⏰ EasyTravel — Boarding Reminder: " + source + " to " + destination);
+            message.setSubject("EasyTravel - Boarding Reminder: " + source + " to " + destination);
             String text = "Hi Passenger,\n\nYour bus from " + source + " to " + destination + " scheduled at " + departureTime + " will depart in 30 minutes.\n\nPlease ensure you reach the boarding point on time and carry your PDF E-Ticket.\n\nHave a safe trip,\nEasyTravel Team";
             message.setText(text);
             mailSender.send(message);
-            System.out.println("✅ Boarding reminder sent to: " + toEmail);
+            log.info("Boarding reminder sent to: {}", toEmail);
         } catch (Exception e) {
-            System.err.println("⚠️ Failed to send boarding reminder to " + toEmail + ": " + e.getMessage());
+            log.error("Failed to send boarding reminder to {}: {}", toEmail, e.getMessage());
         }
     }
 
     // --- EVENT 5: JOURNEY COMPLETED THANK YOU EMAIL ---
     public void sendTripCompletedNotification(String toEmail, String source, String destination) {
         if (toEmail == null || toEmail.isEmpty()) return;
-        System.out.println("✅ [COMPLETED] Sending trip completion email to " + toEmail + " for " + source + " → " + destination);
+        log.info("[COMPLETED] Sending trip completion email to {} for {} -> {}", toEmail, source, destination);
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
             message.setTo(toEmail);
-            message.setSubject("🌟 EasyTravel — Hope you had a great trip from " + source + " to " + destination + "!");
+            message.setSubject("EasyTravel - Hope you had a great trip from " + source + " to " + destination + "!");
             String text = "Hi Passenger,\n\nYour trip from " + source + " to " + destination + " has been completed successfully.\n\nWe hope you had a comfortable journey with EasyTravel! We'd love to hear your feedback on your driver and bus experience.\n\nThank you for choosing EasyTravel!\nEasyTravel Team";
             message.setText(text);
             mailSender.send(message);
-            System.out.println("✅ Trip completion email sent to: " + toEmail);
+            log.info("Trip completion email sent to: {}", toEmail);
         } catch (Exception e) {
-            System.err.println("⚠️ Failed to send trip completion email to " + toEmail + ": " + e.getMessage());
+            log.error("Failed to send trip completion email to {}: {}", toEmail, e.getMessage());
         }
     }
 
@@ -272,23 +273,23 @@ public class EmailService {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
             message.setTo(toEmail);
-            message.setSubject("EasyTravel — Booking Cancellation Confirmation");
+            message.setSubject("EasyTravel - Booking Cancellation Confirmation");
             String bookingRef = String.valueOf(details.getOrDefault("bookingReference", "N/A"));
             String refund = String.valueOf(details.getOrDefault("refundAmount", "0.00"));
 
             message.setText(
                 "Hello,\n\n" +
                 "Your booking (Ref #" + bookingRef + ") with EasyTravel has been cancelled as per your request.\n\n" +
-                "Refund Amount: ₹" + refund + "\n" +
+                "Refund Amount: INR " + refund + "\n" +
                 "The refund will be credited back to your original payment method within 3-5 business days.\n\n" +
                 "We hope to see you aboard again soon!\n\n" +
                 "Best Regards,\n" +
-                "— EasyTravel Team"
+                "- EasyTravel Team"
             );
             mailSender.send(message);
-            System.out.println("✅ Cancellation email sent to: " + toEmail);
+            log.info("Cancellation email sent to: {}", toEmail);
         } catch (Exception e) {
-            System.err.println("⚠️ Failed to send cancellation email to " + toEmail + ": " + e.getMessage());
+            log.error("Failed to send cancellation email to {}: {}", toEmail, e.getMessage());
         }
     }
 }

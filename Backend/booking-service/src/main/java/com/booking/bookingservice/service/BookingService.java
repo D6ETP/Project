@@ -1,21 +1,27 @@
 package com.booking.bookingservice.service;
 
+import com.booking.bookingservice.client.NotificationClient;
 import com.booking.bookingservice.dto.BookingRequest;
 import com.booking.bookingservice.dto.BookingResponse;
+import com.booking.bookingservice.dto.BulkBookingRequest;
+import com.booking.bookingservice.dto.PassengerBookingRequest;
 import com.booking.bookingservice.entity.Booking;
 import com.booking.bookingservice.entity.Schedule;
 import com.booking.bookingservice.entity.Seat;
 import com.booking.bookingservice.repository.BookingRepository;
 import com.booking.bookingservice.repository.ScheduleRepository;
 import com.booking.bookingservice.repository.SeatRepository;
+import com.booking.bookingservice.util.BusinessIdGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +29,8 @@ import java.util.Map;
 
 @Service
 public class BookingService {
+
+    private static final Logger log = LoggerFactory.getLogger(BookingService.class);
 
     @Autowired
     private BookingRepository bookingRepository;
@@ -33,11 +41,11 @@ public class BookingService {
     @Autowired
     private ScheduleRepository scheduleRepository;
 
-    @Value("${notification.service.url:http://localhost:8084/api/notifications}")
-    private String notificationServiceUrl;
-
     @Autowired
     private WalletClient walletClient;
+
+    @Autowired
+    private NotificationClient notificationClient;
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
@@ -85,7 +93,7 @@ public class BookingService {
             : schedule.getRoute().getBasePrice();
 
         Booking booking = new Booking();
-        booking.setBookingReference(com.booking.bookingservice.util.BusinessIdGenerator.generateBookingReference());
+        booking.setBookingReference(BusinessIdGenerator.generateBookingReference());
         booking.setUserId(userId);
         booking.setSchedule(schedule);
         booking.setSeat(seat);
@@ -93,7 +101,7 @@ public class BookingService {
         booking.setAmountPaid(price);
 
         Booking saved = bookingRepository.save(booking);
-        System.out.println("Booking confirmed: " + saved.getId() + " for user: " + userId);
+        log.info("Booking confirmed: {} for user: {}", saved.getId(), userId);
 
         // build response
         BookingResponse response = new BookingResponse();
@@ -119,12 +127,11 @@ public class BookingService {
     }
 
     @Transactional
-    public List<BookingResponse> bookSeatsBulk(Long userId, com.booking.bookingservice.dto.BulkBookingRequest request) {
+    public List<BookingResponse> bookSeatsBulk(Long userId, BulkBookingRequest request) {
         List<BookingResponse> responses = new ArrayList<>();
 
         // We will deduct the wallet balance at the end of the transaction to avoid charging if a seat is already booked
-
-        for (com.booking.bookingservice.dto.PassengerBookingRequest pReq : request.getPassengers()) {
+        for (PassengerBookingRequest pReq : request.getPassengers()) {
             BookingRequest singleReq = new BookingRequest();
             singleReq.setScheduleId(request.getScheduleId());
             singleReq.setSeatId(pReq.getSeatId());
@@ -163,12 +170,12 @@ public class BookingService {
             walletClient.deductMoney(userId, totalAmount);
         }
 
-        // Trigger ticket email notification via REST
+        // Trigger ticket email notification via circuit-breaker-protected REST client
         if (request.getContactEmail() != null && !responses.isEmpty()) {
-            java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a");
-            java.util.List<java.util.Map<String, Object>> bookingMaps = new java.util.ArrayList<>();
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a");
+            List<Map<String, Object>> bookingMaps = new ArrayList<>();
             for (BookingResponse br : responses) {
-                java.util.Map<String, Object> bm = new java.util.HashMap<>();
+                Map<String, Object> bm = new HashMap<>();
                 bm.put("bookingId", br.getBookingId() != null ? br.getBookingId().toString() : "-");
                 bm.put("bookingReference", br.getBookingReference() != null ? br.getBookingReference() : "-");
                 bm.put("status", br.getStatus() != null ? br.getStatus() : "CONFIRMED");
@@ -184,17 +191,7 @@ public class BookingService {
                 bm.put("droppingPoint", br.getDroppingPoint() != null ? br.getDroppingPoint() : (br.getDestination() != null ? br.getDestination() : "-"));
                 bookingMaps.add(bm);
             }
-
-            try {
-                RestTemplate restTemplate = new RestTemplate();
-                Map<String, Object> event = new HashMap<>();
-                event.put("email", request.getContactEmail());
-                event.put("bookings", bookingMaps);
-                restTemplate.postForEntity(notificationServiceUrl + "/send-ticket", event, Map.class);
-                System.out.println("✅ [Booking -> Notification REST] Sent ticket PDF email to: " + request.getContactEmail());
-            } catch (Exception ex) {
-                System.err.println("❌ [Booking -> Notification REST] Ticket email failed: " + ex.getMessage());
-            }
+            notificationClient.sendTicketEmail(request.getContactEmail(), bookingMaps);
         }
 
         return responses;
@@ -222,7 +219,7 @@ public class BookingService {
             throw new RuntimeException("Cannot cancel booking after departure time");
         }
 
-        long hoursUntilDeparture = java.time.Duration.between(now, departureTime).toHours();
+        long hoursUntilDeparture = Duration.between(now, departureTime).toHours();
         
         double refundPercentage;
         if (hoursUntilDeparture > 48) {
@@ -254,9 +251,13 @@ public class BookingService {
         messagingTemplate.convertAndSend("/topic/schedule/" + schedule.getId() + "/seats", seat);
 
         // 4. Add refund to wallet AFTER all DB operations succeed
-        walletClient.addMoney(userId, refundAmount);
+        if (refundAmount > 0) {
+            walletClient.addMoney(userId, refundAmount);
+        } else {
+            log.info("Booking {} cancelled with 0% refund (less than 12h before departure). No wallet credit required.", bookingId);
+        }
 
-        System.out.println("Booking " + bookingId + " cancelled. Refund of " + refundAmount + " added to user " + userId);
+        log.info("Booking {} cancelled. Refund of {} added to user {}", bookingId, refundAmount, userId);
 
         // Send Cancellation Email via REST to notification-service
         Map<String, Object> cancelEvent = new HashMap<>();
@@ -265,15 +266,9 @@ public class BookingService {
         cancelEvent.put("refundAmount", String.format("%.2f", refundAmount));
         cancelEvent.put("source", schedule.getRoute().getSource());
         cancelEvent.put("destination", schedule.getRoute().getDestination());
-        try {
-            RestTemplate restTemplate = new RestTemplate();
-            restTemplate.postForEntity(notificationServiceUrl + "/send-cancellation", cancelEvent, Map.class);
-            System.out.println("✅ [Booking -> Notification REST] Sent cancellation email to: " + cancelEvent.get("email"));
-        } catch (Exception ex) {
-            System.err.println("❌ [Booking -> Notification REST] Cancellation email failed: " + ex.getMessage());
-        }
+        notificationClient.sendCancellationEmail(cancelEvent);
 
-        return "Booking " + bookingId + " cancelled successfully. Refund of ₹" + String.format("%.2f", refundAmount) + " added to your wallet.";
+        return "Booking " + bookingId + " cancelled successfully. Refund of Rs. " + String.format("%.2f", refundAmount) + " added to your wallet.";
     }
 
     public List<BookingResponse> getMyBookings(Long userId) {

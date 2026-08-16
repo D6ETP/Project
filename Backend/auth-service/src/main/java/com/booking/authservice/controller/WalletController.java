@@ -2,6 +2,8 @@ package com.booking.authservice.controller;
 
 import com.booking.authservice.entity.User;
 import com.booking.authservice.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +13,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/auth/wallet")
 public class WalletController {
+
+    private static final Logger log = LoggerFactory.getLogger(WalletController.class);
 
     @Autowired
     private UserRepository userRepository;
@@ -28,7 +32,9 @@ public class WalletController {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return ResponseEntity.ok(Map.of("walletBalance", user.getWalletBalance()));
+
+        double currentBalance = user.getWalletBalance() != null ? user.getWalletBalance() : 0.0;
+        return ResponseEntity.ok(Map.of("walletBalance", currentBalance));
     }
 
     // POST /wallet/add -> internal endpoint to add money (e.g. from refund)
@@ -51,12 +57,15 @@ public class WalletController {
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
         
-        user.setWalletBalance(user.getWalletBalance() + amount);
+        double currentBalance = user.getWalletBalance() != null ? user.getWalletBalance() : 0.0;
+        double newBalance = currentBalance + amount;
+        user.setWalletBalance(newBalance);
         userRepository.save(user);
 
-        return ResponseEntity.ok(Map.of("message", "Amount added successfully", "newBalance", user.getWalletBalance()));
+        log.info("Added {} to wallet for user {}. New balance: {}", amount, userId, newBalance);
+        return ResponseEntity.ok(Map.of("message", "Amount added successfully", "newBalance", newBalance));
     }
 
     // POST /wallet/deduct -> internal endpoint to deduct money (e.g. for booking)
@@ -79,15 +88,18 @@ public class WalletController {
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
         
-        if (user.getWalletBalance() < amount) {
+        double currentBalance = user.getWalletBalance() != null ? user.getWalletBalance() : 0.0;
+        if (currentBalance < amount) {
             return ResponseEntity.badRequest().body(Map.of("message", "Insufficient wallet balance"));
         }
 
-        user.setWalletBalance(user.getWalletBalance() - amount);
+        double newBalance = currentBalance - amount;
+        user.setWalletBalance(newBalance);
         userRepository.save(user);
 
-        return ResponseEntity.ok(Map.of("message", "Amount deducted successfully", "newBalance", user.getWalletBalance()));
+        log.info("Deducted {} from wallet for user {}. New balance: {}", amount, userId, newBalance);
+        return ResponseEntity.ok(Map.of("message", "Amount deducted successfully", "newBalance", newBalance));
     }
 }
