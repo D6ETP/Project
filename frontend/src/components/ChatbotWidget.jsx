@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 
-const CHATBOT_URL = 'http://localhost:8085';
+const CHATBOT_URL = import.meta.env.VITE_CHATBOT_URL || 'http://localhost:8085';
 
 // ─── Quick Actions ─────────────────────────────────────────────────────────────
 const QUICK_ACTIONS = [
