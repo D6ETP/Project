@@ -1,5 +1,7 @@
 package com.booking.gateway.filter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -17,6 +19,8 @@ import java.util.Map;
 @Component
 public class GlobalLoggingFilter implements GlobalFilter, Ordered {
 
+    private static final Logger log = LoggerFactory.getLogger(GlobalLoggingFilter.class);
+
     private final WebClient webClient;
 
     public GlobalLoggingFilter() {
@@ -28,35 +32,37 @@ public class GlobalLoggingFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         long startTime = System.currentTimeMillis();
-        ServerHttpRequest request = exchange.getRequest();
-        String path = request.getURI().getPath();
-
-        // Skip logging requests that go directly to logging service itself to avoid infinite loop
-        if (path.startsWith("/api/logs") || path.startsWith("/logs")) {
-            return chain.filter(exchange);
-        }
 
         return chain.filter(exchange).then(Mono.fromRunnable(() -> {
             long duration = System.currentTimeMillis() - startTime;
+            ServerHttpRequest request = exchange.getRequest();
             ServerHttpResponse response = exchange.getResponse();
+
+            String path = request.getURI().getPath();
+
+            // Skip logging for swagger and internal health requests
+            if (path.contains("/swagger") || path.contains("/api-docs") || path.contains("/actuator")) {
+                return;
+            }
+
             HttpStatus status = (HttpStatus) response.getStatusCode();
             int statusCode = status != null ? status.value() : 200;
 
             String userId = request.getHeaders().getFirst("X-User-Id");
-            String userRole = request.getHeaders().getFirst("X-User-Role");
             String userEmail = request.getHeaders().getFirst("X-User-Email");
-            String clientIp = request.getRemoteAddress() != null ? request.getRemoteAddress().getAddress().getHostAddress() : "127.0.0.1";
+            String userRole = request.getHeaders().getFirst("X-User-Role");
+            String clientIp = request.getRemoteAddress() != null
+                    ? request.getRemoteAddress().getAddress().getHostAddress()
+                    : "UNKNOWN";
 
             if (statusCode >= 400) {
                 // Log Error payload
                 Map<String, Object> errorPayload = new HashMap<>();
-                errorPayload.put("userId", userId != null ? userId : "ANONYMOUS");
-                errorPayload.put("username", userEmail != null ? userEmail : "guest");
-                errorPayload.put("role", userRole != null ? userRole : "ROLE_USER");
-                errorPayload.put("httpMethod", request.getMethod().name());
+                errorPayload.put("serviceName", "API_GATEWAY");
                 errorPayload.put("endpoint", path);
+                errorPayload.put("httpMethod", request.getMethod().name());
                 errorPayload.put("statusCode", statusCode);
-                errorPayload.put("errorMessage", "Request failed with HTTP status " + statusCode + " (" + (status != null ? status.getReasonPhrase() : "") + ")");
+                errorPayload.put("errorMessage", "Request failed with HTTP " + statusCode + " for path: " + path);
                 errorPayload.put("exceptionType", "HTTP_" + statusCode);
                 errorPayload.put("clientIp", clientIp);
 
@@ -67,7 +73,7 @@ public class GlobalLoggingFilter implements GlobalFilter, Ordered {
                         .toBodilessEntity()
                         .subscribe(
                                 null,
-                                err -> System.err.println("⚠️ Could not send error log to LoggingService: " + err.getMessage())
+                                err -> log.warn("Could not send error log to LoggingService: {}", err.getMessage())
                         );
             } else {
                 // Log Operation payload
@@ -84,12 +90,12 @@ public class GlobalLoggingFilter implements GlobalFilter, Ordered {
 
                 webClient.post()
                         .uri("/logs/operation")
-                        .bodyValue(opsPayload)
+                .bodyValue(opsPayload)
                         .retrieve()
                         .toBodilessEntity()
                         .subscribe(
                                 null,
-                                err -> System.err.println("⚠️ Could not send operation log to LoggingService: " + err.getMessage())
+                                err -> log.warn("Could not send operation log to LoggingService: {}", err.getMessage())
                         );
             }
         }));

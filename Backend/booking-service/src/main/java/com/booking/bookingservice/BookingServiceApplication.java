@@ -16,10 +16,6 @@ public class BookingServiceApplication {
 		SpringApplication.run(BookingServiceApplication.class, args);
 	}
 
-	@org.springframework.context.annotation.Bean
-	@org.springframework.cloud.client.loadbalancer.LoadBalanced
-	public org.springframework.web.client.RestTemplate restTemplate() {
-		return new org.springframework.web.client.RestTemplate();
-	}
+
 
 }

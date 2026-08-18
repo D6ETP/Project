@@ -10,12 +10,14 @@ import com.booking.bookingservice.repository.BusRepository;
 import com.booking.bookingservice.repository.RouteRepository;
 import com.booking.bookingservice.repository.ScheduleRepository;
 import com.booking.bookingservice.repository.SeatRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +26,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/events")
 public class TripCompletedListener {
+
+    private static final Logger log = LoggerFactory.getLogger(TripCompletedListener.class);
 
     @Autowired
     private ScheduleRepository scheduleRepository;
@@ -44,7 +48,7 @@ public class TripCompletedListener {
     @Transactional
     public ResponseEntity<?> handleTripCompleted(@RequestBody Map<String, Object> event) {
         try {
-            System.out.println("📨 Received trip completed REST event: " + event);
+            log.info("Received trip completed REST event: {}", event);
 
             Long scheduleId = Long.valueOf(event.get("scheduleId").toString());
             String returnSource = event.get("destination").toString();
@@ -53,7 +57,7 @@ public class TripCompletedListener {
             Schedule originalSchedule = scheduleRepository.findById(scheduleId).orElse(null);
 
             if (originalSchedule == null) {
-                System.out.println("⚠️ Schedule not found for id: " + scheduleId + " — skipping");
+                log.warn("Schedule not found for id: {} - skipping", scheduleId);
                 return ResponseEntity.badRequest().body(Map.of("message", "Schedule not found"));
             }
 
@@ -66,9 +70,8 @@ public class TripCompletedListener {
                 );
 
             if (returnRoutes.isEmpty()) {
-                System.out.println("⚠️ No return route found for "
-                    + returnSource + " → " + returnDestination
-                    + ". Skipping seat generation.");
+                log.warn("No return route found for {} -> {}. Skipping seat generation.",
+                    returnSource, returnDestination);
                 return ResponseEntity.ok(Map.of("message", "Schedule completed. No return route found."));
             }
 
@@ -96,21 +99,20 @@ public class TripCompletedListener {
             List<Seat> seats = generateSeats(savedReturn, bus.getTotalSeats());
             seatRepository.saveAll(seats);
 
-            System.out.println("✅ Return trip created: " + returnSource + " → " + returnDestination
-                + " | Schedule ID: " + savedReturn.getId()
-                + " | " + seats.size() + " seats generated");
+            log.info("Return trip created: {} -> {} | Schedule ID: {} | {} seats generated",
+                returnSource, returnDestination, savedReturn.getId(), seats.size());
 
             return ResponseEntity.ok(Map.of("message", "Trip completed and return schedule created successfully"));
 
         } catch (Exception e) {
-            System.out.println("❌ Error processing trip completed event: " + e.getMessage());
+            log.error("Error processing trip completed event: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
         }
     }
 
     private long getDurationMinutes(Schedule original) {
         if (original.getDepartureTime() != null && original.getArrivalTime() != null) {
-            return java.time.Duration.between(
+            return Duration.between(
                 original.getDepartureTime(), original.getArrivalTime()
             ).toMinutes();
         }
