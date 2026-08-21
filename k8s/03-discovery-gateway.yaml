@@ -25,35 +25,31 @@ spec:
             - containerPort: 8761
               name: http
           env:
-            - name: SERVER_PORT
-              value: "8761"
-            - name: EUREKA_CLIENT_REGISTER_WITH_EUREKA
-              value: "false"
-            - name: EUREKA_CLIENT_FETCH_REGISTRY
-              value: "false"
+            - name: SPRING_PROFILES_ACTIVE
+              value: docker
           resources:
             requests:
-              cpu: "150m"
-              memory: "384Mi"
+              cpu: "25m"
+              memory: "256Mi"
             limits:
               cpu: "500m"
-              memory: "768Mi"
+              memory: "512Mi"
           readinessProbe:
             httpGet:
               path: /actuator/health
               port: 8761
-            initialDelaySeconds: 90
+            initialDelaySeconds: 40
             periodSeconds: 10
             timeoutSeconds: 5
-            failureThreshold: 10
+            failureThreshold: 5
           livenessProbe:
             httpGet:
               path: /actuator/health
               port: 8761
-            initialDelaySeconds: 120
+            initialDelaySeconds: 60
             periodSeconds: 15
             timeoutSeconds: 5
-            failureThreshold: 10
+            failureThreshold: 5
 ---
 # ─── Eureka Server Service ─────────────────────────────────────────────────────
 apiVersion: v1
@@ -83,7 +79,7 @@ metadata:
     app.kubernetes.io/name: api-gateway
     app.kubernetes.io/part-of: easytravel-platform
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: api-gateway
@@ -100,21 +96,15 @@ spec:
             - containerPort: 8080
               name: http
           env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: docker
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://eureka-server:8761/eureka/"
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: easytravel-secret
                   key: JWT_SECRET
-            - name: EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE
-              valueFrom:
-                configMapKeyRef:
-                  name: easytravel-config
-                  key: EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE
-            - name: EUREKA_INSTANCE_PREFER_IP_ADDRESS
-              valueFrom:
-                configMapKeyRef:
-                  name: easytravel-config
-                  key: EUREKA_INSTANCE_PREFER_IP_ADDRESS
           resources:
             requests:
               cpu: "200m"

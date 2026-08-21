@@ -57,7 +57,7 @@ spec:
                   key: EUREKA_INSTANCE_PREFER_IP_ADDRESS
           resources:
             requests:
-              cpu: "150m"
+              cpu: "25m"
               memory: "384Mi"
             limits:
               cpu: "600m"
@@ -163,7 +163,7 @@ spec:
                   key: EUREKA_INSTANCE_PREFER_IP_ADDRESS
           resources:
             requests:
-              cpu: "150m"
+              cpu: "25m"
               memory: "384Mi"
             limits:
               cpu: "600m"
@@ -262,7 +262,7 @@ spec:
                   key: EUREKA_INSTANCE_PREFER_IP_ADDRESS
           resources:
             requests:
-              cpu: "150m"
+              cpu: "25m"
               memory: "384Mi"
             limits:
               cpu: "600m"
@@ -346,7 +346,7 @@ spec:
                   key: EUREKA_INSTANCE_PREFER_IP_ADDRESS
           resources:
             requests:
-              cpu: "100m"
+              cpu: "25m"
               memory: "256Mi"
             limits:
               cpu: "400m"
@@ -428,7 +428,7 @@ spec:
               mountPath: /app/logs
           resources:
             requests:
-              cpu: "100m"
+              cpu: "25m"
               memory: "128Mi"
             limits:
               cpu: "400m"
@@ -498,7 +498,7 @@ spec:
                   key: API_GATEWAY_URL
           resources:
             requests:
-              cpu: "100m"
+              cpu: "25m"
               memory: "128Mi"
             limits:
               cpu: "500m"
