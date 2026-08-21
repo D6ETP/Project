@@ -44,6 +44,11 @@ public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Co
 	public GatewayFilter apply(Config config) {
 		return (exchange, chain) -> {
 
+			// Allow CORS preflight requests without authentication
+			if (org.springframework.http.HttpMethod.OPTIONS.equals(exchange.getRequest().getMethod())) {
+				return chain.filter(exchange);
+			}
+
 			String path = exchange.getRequest().getURI().getPath();
 
 			boolean isOpen = openRoutes.stream().anyMatch(path::startsWith);
