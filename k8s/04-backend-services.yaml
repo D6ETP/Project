@@ -525,10 +525,11 @@ metadata:
     app.kubernetes.io/name: chatbot-service
     app.kubernetes.io/part-of: easytravel-platform
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: chatbot-service
   ports:
     - name: http
       port: 8085
       targetPort: 8085
+      nodePort: 30085
