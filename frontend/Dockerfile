@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Accept VITE env vars as build args so they are baked into the static bundle
 ARG VITE_API_BASE_URL=/api
-ARG VITE_CHATBOT_URL=/api/chat
+ARG VITE_CHATBOT_URL=
 
 # Make them available to npm run build (Vite reads VITE_* env vars at build time)
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
