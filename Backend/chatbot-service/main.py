@@ -482,6 +482,7 @@ async def chat(request: ChatRequest):
 
 # ─── Health Check ──────────────────────────────────────────────────────────────
 @app.get("/health")
+@app.get("/api/chat/health")
 async def health():
     return {
         "status": "ok",

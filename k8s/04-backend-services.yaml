@@ -1,0 +1,534 @@
+# ─── Auth Service ──────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: easytravel
+  labels:
+    app.kubernetes.io/name: auth-service
+    app.kubernetes.io/part-of: easytravel-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+        - name: auth-service
+          image: easytravel/auth-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8081
+              name: http
+          env:
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: easytravel-secret
+                  key: AUTH_DATASOURCE_URL
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: easytravel-secret
+                  key: DB_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: easytravel-secret
+                  key: DB_PASSWORD
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: easytravel-secret
+                  key: JWT_SECRET
+            - name: EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE
+              valueFrom:
+                configMapKeyRef:
+                  name: easytravel-config
+                  key: EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE
+            - name: EUREKA_INSTANCE_PREFER_IP_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: easytravel-config
+                  key: EUREKA_INSTANCE_PREFER_IP_ADDRESS
+          resources:
+            requests:
+              cpu: "150m"
+              memory: "384Mi"
+            limits:
+              cpu: "600m"
+              memory: "768Mi"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 90
+            periodSeconds: 10
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 120
+            periodSeconds: 15
+            failureThreshold: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: easytravel
+  labels:
+    app.kubernetes.io/name: auth-service
+    app.kubernetes.io/part-of: easytravel-platform
+spec:
+  type: ClusterIP
+  selector:
+    app: auth-service
+  ports:
+    - name: http
+      port: 8081
+      targetPort: 8081
+---
+# ─── Booking Service ───────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: booking-service
+  namespace: easytravel
+  labels:
+    app.kubernetes.io/name: booking-service
+    app.kubernetes.io/part-of: easytravel-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: booking-service
+  template:
+    metadata:
+      labels:
+        app: booking-service
+    spec:
+      containers:
+        - name: booking-service
+          image: easytravel/booking-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8082
+              name: http
+          env:
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: easytravel-secret
+                  key: SPRING_DATASOURCE_URL
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: easytravel-secret
+                  key: DB_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: easytravel-secret
+                  key: DB_PASSWORD
+            - name: SPRING_DATA_REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: easytravel-config
+                  key: SPRING_DATA_REDIS_HOST
+            - name: SPRING_DATA_REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: easytravel-config
+                  key: SPRING_DATA_REDIS_PORT
+            - name: NOTIFICATION_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: easytravel-config
+                  key: NOTIFICATION_SERVICE_URL
+            - name: EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE
+              valueFrom:
+                configMapKeyRef:
+                  name: easytravel-config
+                  key: EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE
+            - name: EUREKA_INSTANCE_PREFER_IP_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: easytravel-config
+                  key: EUREKA_INSTANCE_PREFER_IP_ADDRESS
+          resources:
+            requests:
+              cpu: "150m"
+              memory: "384Mi"
+            limits:
+              cpu: "600m"
+              memory: "768Mi"
+          readinessProbe:
+            tcpSocket:
+              port: 8082
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            failureThreshold: 15
+          livenessProbe:
+            tcpSocket:
+              port: 8082
+            initialDelaySeconds: 180
+            periodSeconds: 15
+            failureThreshold: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: booking-service
+  namespace: easytravel
+  labels:
+    app.kubernetes.io/name: booking-service
+    app.kubernetes.io/part-of: easytravel-platform
+spec:
+  type: ClusterIP
+  selector:
+    app: booking-service
+  ports:
+    - name: http
+      port: 8082
+      targetPort: 8082
+---
+# ─── Admin Service ─────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-service
+  namespace: easytravel
+  labels:
+    app.kubernetes.io/name: admin-service
+    app.kubernetes.io/part-of: easytravel-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: admin-service
+  template:
+    metadata:
+      labels:
+        app: admin-service
+    spec:
+      containers:
+        - name: admin-service
+          image: easytravel/admin-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8083
+              name: http
+          env:
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: easytravel-secret
+                  key: SPRING_DATASOURCE_URL
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: easytravel-secret
+                  key: DB_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: easytravel-secret
+                  key: DB_PASSWORD
+            - name: SPRING_DATA_REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: easytravel-config
+                  key: SPRING_DATA_REDIS_HOST
+            - name: SPRING_DATA_REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: easytravel-config
+                  key: SPRING_DATA_REDIS_PORT
+            - name: EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE
+              valueFrom:
+                configMapKeyRef:
+                  name: easytravel-config
+                  key: EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE
+            - name: EUREKA_INSTANCE_PREFER_IP_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: easytravel-config
+                  key: EUREKA_INSTANCE_PREFER_IP_ADDRESS
+          resources:
+            requests:
+              cpu: "150m"
+              memory: "384Mi"
+            limits:
+              cpu: "600m"
+              memory: "768Mi"
+          readinessProbe:
+            tcpSocket:
+              port: 8083
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            failureThreshold: 15
+          livenessProbe:
+            tcpSocket:
+              port: 8083
+            initialDelaySeconds: 180
+            periodSeconds: 15
+            failureThreshold: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin-service
+  namespace: easytravel
+  labels:
+    app.kubernetes.io/name: admin-service
+    app.kubernetes.io/part-of: easytravel-platform
+spec:
+  type: ClusterIP
+  selector:
+    app: admin-service
+  ports:
+    - name: http
+      port: 8083
+      targetPort: 8083
+---
+# ─── Notification Service ───────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  namespace: easytravel
+  labels:
+    app.kubernetes.io/name: notification-service
+    app.kubernetes.io/part-of: easytravel-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+    spec:
+      containers:
+        - name: notification-service
+          image: easytravel/notification-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8084
+              name: http
+          env:
+            - name: SPRING_MAIL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: easytravel-secret
+                  key: GMAIL_USERNAME
+            - name: SPRING_MAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: easytravel-secret
+                  key: GMAIL_APP_PASSWORD
+            - name: EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE
+              valueFrom:
+                configMapKeyRef:
+                  name: easytravel-config
+                  key: EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE
+            - name: EUREKA_INSTANCE_PREFER_IP_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: easytravel-config
+                  key: EUREKA_INSTANCE_PREFER_IP_ADDRESS
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "400m"
+              memory: "512Mi"
+          readinessProbe:
+            tcpSocket:
+              port: 8084
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            failureThreshold: 15
+          livenessProbe:
+            tcpSocket:
+              port: 8084
+            initialDelaySeconds: 180
+            periodSeconds: 15
+            failureThreshold: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+  namespace: easytravel
+  labels:
+    app.kubernetes.io/name: notification-service
+    app.kubernetes.io/part-of: easytravel-platform
+spec:
+  type: ClusterIP
+  selector:
+    app: notification-service
+  ports:
+    - name: http
+      port: 8084
+      targetPort: 8084
+---
+# ─── .NET Logging Service ──────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logging-service
+  namespace: easytravel
+  labels:
+    app.kubernetes.io/name: logging-service
+    app.kubernetes.io/part-of: easytravel-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: logging-service
+  template:
+    metadata:
+      labels:
+        app: logging-service
+    spec:
+      containers:
+        - name: logging-service
+          image: easytravel/logging-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8086
+              name: http
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: easytravel-config
+                  key: ASPNETCORE_ENVIRONMENT
+            - name: ASPNETCORE_URLS
+              valueFrom:
+                configMapKeyRef:
+                  name: easytravel-config
+                  key: ASPNETCORE_URLS
+            - name: Eureka__Client__ServiceUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: easytravel-config
+                  key: Eureka__Client__ServiceUrl
+          volumeMounts:
+            - name: logging-data
+              mountPath: /app/logs
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "400m"
+              memory: "384Mi"
+      volumes:
+        - name: logging-data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: logging-service
+  namespace: easytravel
+  labels:
+    app.kubernetes.io/name: logging-service
+    app.kubernetes.io/part-of: easytravel-platform
+spec:
+  type: ClusterIP
+  selector:
+    app: logging-service
+  ports:
+    - name: http
+      port: 8086
+      targetPort: 8086
+---
+# ─── AI Chatbot Service (FastAPI) ──────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chatbot-service
+  namespace: easytravel
+  labels:
+    app.kubernetes.io/name: chatbot-service
+    app.kubernetes.io/part-of: easytravel-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chatbot-service
+  template:
+    metadata:
+      labels:
+        app: chatbot-service
+    spec:
+      containers:
+        - name: chatbot-service
+          image: easytravel/chatbot-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8085
+              name: http
+          env:
+            - name: GEMINI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: easytravel-secret
+                  key: GEMINI_API_KEY
+            - name: OPENWEATHER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: easytravel-secret
+                  key: OPENWEATHER_API_KEY
+            - name: API_GATEWAY_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: easytravel-config
+                  key: API_GATEWAY_URL
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /api/chat/health
+              port: 8085
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/chat/health
+              port: 8085
+            initialDelaySeconds: 20
+            periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chatbot-service
+  namespace: easytravel
+  labels:
+    app.kubernetes.io/name: chatbot-service
+    app.kubernetes.io/part-of: easytravel-platform
+spec:
+  type: ClusterIP
+  selector:
+    app: chatbot-service
+  ports:
+    - name: http
+      port: 8085
+      targetPort: 8085

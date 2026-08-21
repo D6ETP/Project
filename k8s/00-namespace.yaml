@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: easytravel
+  labels:
+    app.kubernetes.io/name: easytravel
+    app.kubernetes.io/part-of: easytravel-platform

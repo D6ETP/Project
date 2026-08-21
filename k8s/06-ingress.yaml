@@ -1,0 +1,71 @@
+# ─── NGINX Ingress Controller Routing ──────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: easytravel-ingress
+  namespace: easytravel
+  labels:
+    app.kubernetes.io/name: easytravel-ingress
+    app.kubernetes.io/part-of: easytravel-platform
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    # SSL/TLS redirection can be enabled when cert-manager or secrets are added:
+    # nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+    - http:
+        paths:
+          # Route all frontend client assets and pages to React/Nginx
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80
+          # Route all REST API Gateway requests to Spring Cloud Gateway
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  number: 8080
+---
+# ─── (Alternative) NodePort Exposure for Cloud/Local without Ingress ────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-nodeport
+  namespace: easytravel
+  labels:
+    app.kubernetes.io/name: frontend-nodeport
+spec:
+  type: NodePort
+  selector:
+    app: frontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      nodePort: 30080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway-nodeport
+  namespace: easytravel
+  labels:
+    app.kubernetes.io/name: api-gateway-nodeport
+spec:
+  type: NodePort
+  selector:
+    app: api-gateway
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      nodePort: 30088

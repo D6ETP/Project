@@ -38,6 +38,7 @@ services:
 
   # ─── Discovery & Registry ───────────────────────────────────────────────────────
   eureka-server:
+    image: easytravel/eureka-server:latest
     build:
       context: ./Backend/eureka-server
       dockerfile: Dockerfile
@@ -54,6 +55,7 @@ services:
 
   # ─── Spring Boot Backend Microservices ──────────────────────────────────────────
   auth-service:
+    image: easytravel/auth-service:latest
     build:
       context: ./Backend/auth-service
       dockerfile: Dockerfile
@@ -77,6 +79,7 @@ services:
       - easytravel-net
 
   booking-service:
+    image: easytravel/booking-service:latest
     build:
       context: ./Backend/booking-service
       dockerfile: Dockerfile
@@ -104,6 +107,7 @@ services:
       - easytravel-net
 
   admin-service:
+    image: easytravel/admin-service:latest
     build:
       context: ./Backend/admin-service
       dockerfile: Dockerfile
@@ -130,6 +134,7 @@ services:
       - easytravel-net
 
   notification-service:
+    image: easytravel/notification-service:latest
     build:
       context: ./Backend/notification-service
       dockerfile: Dockerfile
@@ -150,6 +155,7 @@ services:
 
   # ─── API Gateway ───────────────────────────────────────────────────────────────
   api-gateway:
+    image: easytravel/api-gateway:latest
     build:
       context: ./Backend/api-gateway
       dockerfile: Dockerfile
@@ -170,6 +176,7 @@ services:
 
   # ─── .NET Logging Service ──────────────────────────────────────────────────────
   logging-service:
+    image: easytravel/logging-service:latest
     build:
       context: ./Backend/LoggingService/LoggingService
       dockerfile: Dockerfile
@@ -190,6 +197,7 @@ services:
 
   # ─── Python AI Chatbot Service ─────────────────────────────────────────────────
   chatbot-service:
+    image: easytravel/chatbot-service:latest
     build:
       context: ./Backend/chatbot-service
       dockerfile: Dockerfile
@@ -208,6 +216,7 @@ services:
 
   # ─── React Frontend ────────────────────────────────────────────────────────────
   frontend:
+    image: easytravel/frontend:latest
     build:
       context: ./frontend
       dockerfile: Dockerfile
