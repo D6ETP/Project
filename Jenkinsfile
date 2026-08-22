@@ -8,6 +8,11 @@ pipeline {
         ansiColor('xterm')
     }
 
+    triggers {
+        // Poll GitHub every 2 minutes for new commits and auto-trigger build
+        pollSCM('H/2 * * * *')
+    }
+
     parameters {
         string(name: 'DOCKER_REGISTRY', defaultValue: 'docker.io/abhirk12', description: 'Docker Registry URL or DockerHub namespace (e.g. docker.io/abhirk12)')
         string(name: 'IMAGE_TAG', defaultValue: 'build-${BUILD_NUMBER}', description: 'Tag for built container images')
