@@ -96,14 +96,12 @@ case "$TARGET" in
         # Python Chatbot Service
         build_and_deploy "chatbot-service" "./Backend/chatbot-service" "easytravel/chatbot-service:latest"
 
-        # Frontend (React + Nginx)
-        build_and_deploy "frontend" "./frontend" "easytravel/frontend:latest" \
-            "--build-arg VITE_API_BASE_URL=http://${EXTERNAL_IP}:30088/api --build-arg VITE_CHATBOT_URL="
+        # Frontend (React + Nginx) — uses /api relative path (proxied by nginx), no external IP needed
+        build_and_deploy "frontend" "./frontend" "easytravel/frontend:latest"
         ;;
 
     frontend)
-        build_and_deploy "frontend" "./frontend" "easytravel/frontend:latest" \
-            "--build-arg VITE_API_BASE_URL=http://${EXTERNAL_IP}:30088/api --build-arg VITE_CHATBOT_URL="
+        build_and_deploy "frontend" "./frontend" "easytravel/frontend:latest"
         ;;
 
     gateway|api-gateway)
