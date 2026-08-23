@@ -16,7 +16,7 @@
 
 set -e
 
-EXTERNAL_IP="34.47.183.198"
+EXTERNAL_IP="34.47.143.41"
 NAMESPACE="easytravel"
 PROJECT_DIR="$HOME/Project"
 
