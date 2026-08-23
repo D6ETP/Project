@@ -85,6 +85,10 @@ spec:
               mountPath: /var/jenkins_home
             - name: docker-sock
               mountPath: /var/run/docker.sock
+            - name: docker-bin
+              mountPath: /usr/bin/docker
+            - name: kubectl-bin
+              mountPath: /usr/local/bin/kubectl
       volumes:
         - name: jenkins-home
           persistentVolumeClaim:
@@ -92,6 +96,12 @@ spec:
         - name: docker-sock
           hostPath:
             path: /var/run/docker.sock
+        - name: docker-bin
+          hostPath:
+            path: /usr/bin/docker
+        - name: kubectl-bin
+          hostPath:
+            path: /usr/local/bin/kubectl
 ---
 # ─── Jenkins Service (NodePort) ───────────────────────────────────────────────
 apiVersion: v1
