@@ -2,6 +2,7 @@ package com.booking.gateway.filter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -23,9 +24,9 @@ public class GlobalLoggingFilter implements GlobalFilter, Ordered {
 
     private final WebClient webClient;
 
-    public GlobalLoggingFilter() {
+    public GlobalLoggingFilter(@Value("${logging.service.url:http://logging-service:8086}") String loggingServiceUrl) {
         this.webClient = WebClient.builder()
-                .baseUrl("http://localhost:8086")
+                .baseUrl(loggingServiceUrl)
                 .build();
     }
 
