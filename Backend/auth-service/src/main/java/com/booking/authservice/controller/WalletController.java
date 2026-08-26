@@ -37,9 +37,23 @@ public class WalletController {
         return ResponseEntity.ok(Map.of("walletBalance", currentBalance));
     }
 
-    // POST /wallet/add -> internal endpoint to add money (e.g. from refund)
+    // POST /wallet/add -> internal or user endpoint to add money (e.g. from refund or wallet top-up)
     @PostMapping("/add")
-    public ResponseEntity<?> addMoney(@RequestHeader("X-User-Id") Long userId, @RequestBody Map<String, Object> request) {
+    public ResponseEntity<?> addMoney(
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId,
+            @RequestBody Map<String, Object> request) {
+        
+        Long userId = headerUserId;
+        if (userId == null && request.get("userId") != null) {
+            try {
+                userId = Long.valueOf(request.get("userId").toString());
+            } catch (NumberFormatException ignored) {}
+        }
+
+        if (userId == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "User ID is required"));
+        }
+
         Object amountObj = request.get("amount");
         if (amountObj == null) {
             return ResponseEntity.badRequest().body(Map.of("message", "Amount is required"));
@@ -60,7 +74,7 @@ public class WalletController {
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
         
         double currentBalance = user.getWalletBalance() != null ? user.getWalletBalance() : 0.0;
-        double newBalance = currentBalance + amount;
+        double newBalance = Math.round((currentBalance + amount) * 100.0) / 100.0;
         user.setWalletBalance(newBalance);
         userRepository.save(user);
 
@@ -70,7 +84,21 @@ public class WalletController {
 
     // POST /wallet/deduct -> internal endpoint to deduct money (e.g. for booking)
     @PostMapping("/deduct")
-    public ResponseEntity<?> deductMoney(@RequestHeader("X-User-Id") Long userId, @RequestBody Map<String, Object> request) {
+    public ResponseEntity<?> deductMoney(
+            @RequestHeader(value = "X-User-Id", required = false) Long headerUserId,
+            @RequestBody Map<String, Object> request) {
+        
+        Long userId = headerUserId;
+        if (userId == null && request.get("userId") != null) {
+            try {
+                userId = Long.valueOf(request.get("userId").toString());
+            } catch (NumberFormatException ignored) {}
+        }
+
+        if (userId == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "User ID is required"));
+        }
+
         Object amountObj = request.get("amount");
         if (amountObj == null) {
             return ResponseEntity.badRequest().body(Map.of("message", "Amount is required"));
@@ -95,7 +123,7 @@ public class WalletController {
             return ResponseEntity.badRequest().body(Map.of("message", "Insufficient wallet balance"));
         }
 
-        double newBalance = currentBalance - amount;
+        double newBalance = Math.round((currentBalance - amount) * 100.0) / 100.0;
         user.setWalletBalance(newBalance);
         userRepository.save(user);
 

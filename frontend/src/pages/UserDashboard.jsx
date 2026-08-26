@@ -21,6 +21,10 @@ export default function UserDashboard() {
     const [reviewComment, setReviewComment] = useState('');
     const [submittingReview, setSubmittingReview] = useState(false);
 
+    const [topupAmount, setTopupAmount] = useState(500);
+    const [showTopupModal, setShowTopupModal] = useState(false);
+    const [topupLoading, setTopupLoading] = useState(false);
+
     const fetchData = async () => {
         try {
             const bookRes = await api.get('/bookings/my');
@@ -31,7 +35,13 @@ export default function UserDashboard() {
 
         try {
             const walletRes = await api.get(`/auth/wallet?userId=${user.userId}`);
-            setWalletBalance(walletRes.data.walletBalance);
+            const balance = walletRes.data.walletBalance != null ? walletRes.data.walletBalance : 0;
+            setWalletBalance(balance);
+            try {
+                const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+                userInfo.walletBalance = balance;
+                localStorage.setItem('userInfo', JSON.stringify(userInfo));
+            } catch (e) {}
         } catch (err) {
             console.warn('Could not load wallet balance.');
         }
@@ -44,6 +54,35 @@ export default function UserDashboard() {
         fetchData();
     }, [user]);
 
+    const handleTopupWallet = async (e) => {
+        e.preventDefault();
+        const amt = Number(topupAmount);
+        if (isNaN(amt) || amt <= 0) {
+            setActionError('Please enter a valid positive top-up amount.');
+            return;
+        }
+
+        setTopupLoading(true);
+        setActionStatus('');
+        setActionError('');
+        try {
+            const res = await api.post('/auth/wallet/add', { amount: amt, userId: user.userId });
+            const newBal = res.data.newBalance != null ? res.data.newBalance : (walletBalance + amt);
+            setWalletBalance(newBal);
+            setShowTopupModal(false);
+            setActionStatus(`🎉 ₹${amt.toFixed(2)} added to your EasyTravel Wallet successfully! New Balance: ₹${newBal.toFixed(2)}`);
+            try {
+                const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+                userInfo.walletBalance = newBal;
+                localStorage.setItem('userInfo', JSON.stringify(userInfo));
+            } catch (e) {}
+        } catch (err) {
+            setActionError(err.response?.data?.message || 'Failed to add money to wallet.');
+        } finally {
+            setTopupLoading(false);
+        }
+    };
+
     const promptCancel = (booking) => {
         setActionStatus('');
         setActionError('');
@@ -52,9 +91,22 @@ export default function UserDashboard() {
             setActionError("Cannot cancel a past journey.");
             return;
         }
-        const refundPercentage = hoursUntilDeparture > 24 ? 0.8 : 0.5;
-        const refundAmount = booking.amountPaid * refundPercentage;
-        setCancelTarget({ booking, refundPercentage, refundAmount, hoursUntilDeparture });
+        
+        let refundPercentage = 0.0;
+        let tierLabel = '< 12h before departure (Non-refundable)';
+        if (hoursUntilDeparture > 48) {
+            refundPercentage = 1.0;
+            tierLabel = '> 48h before departure (100% Refund)';
+        } else if (hoursUntilDeparture > 24) {
+            refundPercentage = 0.8;
+            tierLabel = '24h - 48h before departure (80% Refund)';
+        } else if (hoursUntilDeparture > 12) {
+            refundPercentage = 0.5;
+            tierLabel = '12h - 24h before departure (50% Refund)';
+        }
+
+        const refundAmount = Math.round(booking.amountPaid * refundPercentage * 100) / 100;
+        setCancelTarget({ booking, refundPercentage, refundAmount, hoursUntilDeparture, tierLabel });
     };
 
     const confirmCancelBooking = async () => {
@@ -119,9 +171,18 @@ export default function UserDashboard() {
                             <span className="badge rounded-pill bg-light text-primary px-3 py-2 border mb-3 d-block mx-auto" style={{ width: 'fit-content' }}>
                                 Passenger Account
                             </span>
-                            <div className="bg-success text-white p-3 rounded-3 text-start">
-                                <span className="small d-block mb-1 opacity-75">EasyTravel Wallet</span>
-                                <h4 className="mb-0 fw-bold">₹{walletBalance.toFixed(2)}</h4>
+                            <div className="bg-success text-white p-3 rounded-3 text-start mb-2 shadow-sm">
+                                <div className="d-flex justify-content-between align-items-center mb-1">
+                                    <span className="small opacity-75">EasyTravel Wallet</span>
+                                    <i className="bi bi-wallet2 fs-5"></i>
+                                </div>
+                                <h4 className="mb-2 fw-bold">₹{walletBalance.toFixed(2)}</h4>
+                                <button 
+                                    onClick={() => setShowTopupModal(true)} 
+                                    className="btn btn-sm btn-light text-success fw-bold w-100 rounded-pill shadow-none"
+                                >
+                                    <i className="bi bi-plus-circle-fill me-1"></i>Add Money
+                                </button>
                             </div>
                         </div>
 
@@ -302,8 +363,8 @@ export default function UserDashboard() {
                                         <span className="fw-bold">₹{cancelTarget.booking.amountPaid.toFixed(2)}</span>
                                     </div>
                                     <div className="d-flex justify-content-between small mb-1">
-                                        <span>Refund Tier ({cancelTarget.hoursUntilDeparture > 24 ? '> 24h before departure' : '< 24h before departure'}):</span>
-                                        <span className="fw-bold text-primary">{(cancelTarget.refundPercentage * 100).toFixed(0)}% Refund</span>
+                                        <span>Refund Tier:</span>
+                                        <span className="fw-bold text-primary">{cancelTarget.tierLabel || `${(cancelTarget.refundPercentage * 100).toFixed(0)}% Refund`}</span>
                                     </div>
                                     <hr className="my-2" />
                                     <div className="d-flex justify-content-between fw-bold text-success">
@@ -320,6 +381,71 @@ export default function UserDashboard() {
                                     Confirm Cancellation
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Wallet Top-up Modal */}
+            {showTopupModal && (
+                <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}>
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
+                            <div className="modal-header text-white py-3" style={{ background: 'linear-gradient(135deg, #27AE60 0%, #2ECC71 100%)' }}>
+                                <h5 className="modal-title fw-bold fs-6 mb-0">
+                                    <i className="bi bi-wallet2 me-2"></i>Add Money to EasyTravel Wallet
+                                </h5>
+                                <button type="button" className="btn-close btn-close-white" onClick={() => setShowTopupModal(false)}></button>
+                            </div>
+                            <form onSubmit={handleTopupWallet}>
+                                <div className="modal-body p-4 text-start">
+                                    <div className="p-3 bg-light rounded-3 mb-3 border text-center">
+                                        <small className="text-muted d-block">Current Wallet Balance</small>
+                                        <h4 className="fw-bold text-success mb-0">₹{walletBalance.toFixed(2)}</h4>
+                                    </div>
+
+                                    <label className="form-label fw-bold small text-muted">Select or Enter Amount (₹)</label>
+                                    <div className="input-group mb-3">
+                                        <span className="input-group-text fw-bold">₹</span>
+                                        <input
+                                            type="number"
+                                            className="form-control sw-input"
+                                            min="10"
+                                            max="50000"
+                                            step="10"
+                                            value={topupAmount}
+                                            onChange={(e) => setTopupAmount(e.target.value)}
+                                            placeholder="Enter amount"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="d-flex gap-2 mb-3 flex-wrap justify-content-center">
+                                        {[200, 500, 1000, 2000].map((quickAmt) => (
+                                            <button
+                                                key={quickAmt}
+                                                type="button"
+                                                onClick={() => setTopupAmount(quickAmt)}
+                                                className={`btn btn-sm rounded-pill px-3 fw-bold ${Number(topupAmount) === quickAmt ? 'btn-success' : 'btn-outline-secondary'}`}
+                                            >
+                                                + ₹{quickAmt}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    <div className="alert alert-info py-2 px-3 small rounded-3 border-0">
+                                        <i className="bi bi-info-circle me-1"></i> Funds added are immediately available for instant, 1-click ticket checkout with zero gateway fees!
+                                    </div>
+                                </div>
+                                <div className="modal-footer border-0 pt-0 pb-4 px-4 d-flex gap-2">
+                                    <button type="button" className="btn btn-light rounded-pill flex-grow-1 border fw-semibold" onClick={() => setShowTopupModal(false)}>
+                                        Cancel
+                                    </button>
+                                    <button type="submit" className="btn btn-success rounded-pill flex-grow-1 fw-bold" disabled={topupLoading}>
+                                        {topupLoading ? 'Adding Funds...' : `Add ₹${Number(topupAmount || 0).toFixed(2)}`}
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>

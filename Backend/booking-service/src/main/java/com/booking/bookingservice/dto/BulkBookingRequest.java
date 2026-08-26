@@ -28,4 +28,9 @@ public class BulkBookingRequest {
 
     private String boardingPoint;
     private String droppingPoint;
+
+    // Coupon and dynamic discount
+    private String couponCode;
+    private Double discountAmount;
+    private Double totalAmount;
 }

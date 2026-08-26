@@ -31,16 +31,18 @@ public class WalletClient {
             return;
         }
 
+        double safeAmount = Math.round(amount * 100.0) / 100.0;
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("X-User-Id", String.valueOf(userId));
 
-        Map<String, Double> body = new HashMap<>();
-        body.put("amount", amount);
+        Map<String, Object> body = new HashMap<>();
+        body.put("userId", userId);
+        body.put("amount", safeAmount);
 
-        HttpEntity<Map<String, Double>> request = new HttpEntity<>(body, headers);
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
         restTemplate.postForEntity(AUTH_SERVICE_URL + "/add", request, Map.class);
-        log.info("Wallet refunded successfully for user: {}, amount: {}", userId, amount);
+        log.info("Wallet refunded/credited successfully for user: {}, amount: {}", userId, safeAmount);
     }
 
     /**
@@ -55,16 +57,22 @@ public class WalletClient {
 
     @CircuitBreaker(name = "walletService", fallbackMethod = "fallbackDeductMoney")
     public void deductMoney(Long userId, Double amount) {
+        if (amount == null || amount <= 0) {
+            return;
+        }
+
+        double safeAmount = Math.round(amount * 100.0) / 100.0;
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("X-User-Id", String.valueOf(userId));
 
-        Map<String, Double> body = new HashMap<>();
-        body.put("amount", amount);
+        Map<String, Object> body = new HashMap<>();
+        body.put("userId", userId);
+        body.put("amount", safeAmount);
 
-        HttpEntity<Map<String, Double>> request = new HttpEntity<>(body, headers);
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
         restTemplate.postForEntity(AUTH_SERVICE_URL + "/deduct", request, Map.class);
-        log.info("Wallet deducted successfully for user: {}, amount: {}", userId, amount);
+        log.info("Wallet deducted successfully for user: {}, amount: {}", userId, safeAmount);
     }
 
     /**
@@ -72,8 +80,8 @@ public class WalletClient {
      * We must NOT let a booking go through without successful payment deduction.
      */
     public void fallbackDeductMoney(Long userId, Double amount, Throwable t) {
-        log.error("[WalletClient CB OPEN] Wallet service unavailable. Cannot deduct {} for user {}. Cause: {}",
+        log.error("[WalletClient CB OPEN] Wallet service unavailable or insufficient balance. Cannot deduct {} for user {}. Cause: {}",
                 amount, userId, t.getMessage());
-        throw new RuntimeException("Wallet service is currently unavailable. Please try again shortly.");
+        throw new RuntimeException("Wallet transaction failed or insufficient balance. Please verify your wallet balance.");
     }
 }

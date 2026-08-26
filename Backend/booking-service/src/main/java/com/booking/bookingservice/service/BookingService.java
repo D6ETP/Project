@@ -130,6 +130,25 @@ public class BookingService {
     public List<BookingResponse> bookSeatsBulk(Long userId, BulkBookingRequest request) {
         List<BookingResponse> responses = new ArrayList<>();
 
+        Schedule schedule = scheduleRepository.findById(request.getScheduleId())
+            .orElseThrow(() -> new RuntimeException("Schedule not found"));
+
+        Double basePrice = schedule.getPriceForThisTrip() != null
+            ? schedule.getPriceForThisTrip()
+            : schedule.getRoute().getBasePrice();
+
+        int passengerCount = request.getPassengers().size();
+        Double totalOriginalPrice = basePrice * passengerCount;
+
+        // Calculate discount and net payable amount
+        Double discount = 0.0;
+        if (request.getDiscountAmount() != null && request.getDiscountAmount() > 0) {
+            discount = Math.min(request.getDiscountAmount(), totalOriginalPrice);
+        }
+
+        Double totalFinalPrice = Math.max(0.0, totalOriginalPrice - discount);
+        Double pricePerSeat = passengerCount > 0 ? (Math.round((totalFinalPrice / passengerCount) * 100.0) / 100.0) : basePrice;
+
         // We will deduct the wallet balance at the end of the transaction to avoid charging if a seat is already booked
         for (PassengerBookingRequest pReq : request.getPassengers()) {
             BookingRequest singleReq = new BookingRequest();
@@ -138,7 +157,7 @@ public class BookingService {
 
             BookingResponse res = bookSeat(userId, singleReq);
             
-            // Now update the passenger details on the saved booking
+            // Now update the passenger details and actual discounted amount on the saved booking
             Booking booking = bookingRepository.findById(res.getBookingId()).orElseThrow();
             booking.setPassengerName(pReq.getPassengerName());
             booking.setPassengerAge(pReq.getPassengerAge());
@@ -147,8 +166,10 @@ public class BookingService {
             booking.setContactPhone(request.getContactPhone());
             booking.setBoardingPoint(request.getBoardingPoint());
             booking.setDroppingPoint(request.getDroppingPoint());
+            booking.setAmountPaid(pricePerSeat);
             bookingRepository.save(booking);
 
+            res.setAmountPaid(pricePerSeat);
             res.setPassengerName(pReq.getPassengerName());
             res.setPassengerAge(pReq.getPassengerAge());
             res.setPassengerGender(pReq.getPassengerGender());
@@ -157,17 +178,9 @@ public class BookingService {
             responses.add(res);
         }
 
-        // Deduct money from wallet AFTER all DB operations succeed (bookings created)
+        // Deduct accurate final price from wallet AFTER all DB operations succeed
         if ("wallet".equalsIgnoreCase(request.getPaymentMethod())) {
-            Schedule schedule = scheduleRepository.findById(request.getScheduleId())
-                .orElseThrow(() -> new RuntimeException("Schedule not found"));
-            Double price = schedule.getPriceForThisTrip() != null
-                ? schedule.getPriceForThisTrip()
-                : schedule.getRoute().getBasePrice();
-            Double totalAmount = price * request.getPassengers().size();
-            
-            // This will throw RuntimeException if balance is insufficient
-            walletClient.deductMoney(userId, totalAmount);
+            walletClient.deductMoney(userId, totalFinalPrice);
         }
 
         // Trigger ticket email notification via circuit-breaker-protected REST client
@@ -231,7 +244,7 @@ public class BookingService {
         } else {
             refundPercentage = 0.0;
         }
-        double refundAmount = booking.getAmountPaid() * refundPercentage;
+        double refundAmount = Math.round(booking.getAmountPaid() * refundPercentage * 100.0) / 100.0;
 
         // 1. Mark booking as cancelled and save FIRST (prevents double refund)
         booking.setStatus("CANCELLED");

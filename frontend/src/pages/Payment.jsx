@@ -18,7 +18,17 @@ export default function Payment() {
     const contact = state?.contact;
 
     React.useEffect(() => {
-        api.get(`/auth/wallet?userId=${JSON.parse(localStorage.getItem('userInfo'))?.userId}`).then(res => setWalletBalance(res.data.walletBalance)).catch(console.error);
+        try {
+            const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+            const userId = userInfo?.userId;
+            if (userId) {
+                api.get(`/auth/wallet?userId=${userId}`)
+                    .then(res => setWalletBalance(res.data.walletBalance != null ? res.data.walletBalance : 0))
+                    .catch(err => console.error("Could not fetch wallet balance:", err));
+            }
+        } catch (e) {
+            console.error("Error reading user info from localStorage:", e);
+        }
     }, []);
 
     if (!schedule || !seats || !passengers || !contact) { navigate('/search'); return null; }
@@ -78,6 +88,9 @@ export default function Payment() {
                 contactEmail: contact.email,
                 contactPhone: contact.phone,
                 paymentMethod: paymentMethod,
+                couponCode: appliedCoupon?.code || null,
+                discountAmount: discountAmount,
+                totalAmount: totalAmount,
                 boardingPoint: state.points?.boardingPoint,
                 droppingPoint: state.points?.droppingPoint,
                 passengers: passengers.map(p => ({
@@ -90,6 +103,17 @@ export default function Payment() {
 
             const res = await api.post('/bookings/bulk', payload);
             const bookings = res.data;
+
+            // If paid with wallet, update local state & cached storage
+            if (paymentMethod === 'wallet') {
+                const newBalance = Math.max(0, walletBalance - totalAmount);
+                setWalletBalance(newBalance);
+                try {
+                    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+                    userInfo.walletBalance = newBalance;
+                    localStorage.setItem('userInfo', JSON.stringify(userInfo));
+                } catch (e) {}
+            }
 
             navigate('/ticket', { state: { bookings, schedule, contact } });
         } catch (err) {
