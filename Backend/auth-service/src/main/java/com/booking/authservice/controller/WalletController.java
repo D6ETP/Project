@@ -70,8 +70,9 @@ public class WalletController {
             return ResponseEntity.badRequest().body(Map.of("message", "Amount must be positive"));
         }
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        final Long finalUserId = userId;
+        User user = userRepository.findById(finalUserId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + finalUserId));
         
         double currentBalance = user.getWalletBalance() != null ? user.getWalletBalance() : 0.0;
         double newBalance = Math.round((currentBalance + amount) * 100.0) / 100.0;
@@ -115,8 +116,9 @@ public class WalletController {
             return ResponseEntity.badRequest().body(Map.of("message", "Amount must be positive"));
         }
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        final Long finalUserId = userId;
+        User user = userRepository.findById(finalUserId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + finalUserId));
         
         double currentBalance = user.getWalletBalance() != null ? user.getWalletBalance() : 0.0;
         if (currentBalance < amount) {
